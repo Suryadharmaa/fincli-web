@@ -1,0 +1,2813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinCLI — Modern Financial Terminal</title>
+<meta name="description" content="FinCLI is a modern financial CLI/TUI for market monitoring, technical analysis, AI-assisted research, portfolio tracking, watchlists, and trading journals.">
+<meta name="keywords" content="FinCLI, financial terminal, CLI, TUI, market analysis, technical analysis, AI trading, portfolio tracker">
+<meta name="author" content="FinCLI">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230a0a0a'/><text x='3' y='24' font-family='monospace' font-size='22' fill='%2300ff41'>F</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   DESIGN SYSTEM — TERMINAL FINANCE PIXEL THEME
+   ═══════════════════════════════════════════════════════ */
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #111111;
+  --bg-tertiary: #1a1a1a;
+  --bg-card: #0d0d0d;
+  --bg-card-hover: #141414;
+  --border-primary: #00ff41;
+  --border-dim: #1a3a1a;
+  --border-subtle: #222222;
+  --text-primary: #00ff41;
+  --text-secondary: #00cc33;
+  --text-dim: #008822;
+  --text-muted: #555555;
+  --text-gray: #888888;
+  --text-light: #aaaaaa;
+  --text-white: #cccccc;
+  --accent-cyan: #00e5ff;
+  --accent-amber: #ffab00;
+  --accent-red: #ff1744;
+  --accent-blue: #448aff;
+  --glow-green: 0 0 10px rgba(0, 255, 65, 0.3), 0 0 30px rgba(0, 255, 65, 0.1);
+  --glow-green-strong: 0 0 15px rgba(0, 255, 65, 0.5), 0 0 45px rgba(0, 255, 65, 0.2);
+  --glow-cyan: 0 0 10px rgba(0, 229, 255, 0.3), 0 0 30px rgba(0, 229, 255, 0.1);
+  --pixel-size: 2px;
+  --font-mono: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+  --font-pixel: 'Press Start 2P', monospace;
+  --font-sans: 'Space Grotesk', sans-serif;
+  --transition-fast: 0.15s ease;
+  --transition-med: 0.3s ease;
+  --scanline-opacity: 0.03;
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESET & BASE
+   ═══════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-dim) var(--bg-primary);
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border-dim); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+body {
+  font-family: var(--font-mono);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* CRT Scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 65, var(--scanline-opacity)) 2px,
+    rgba(0, 255, 65, var(--scanline-opacity)) 4px
+  );
+}
+
+/* Matrix rain background canvas */
+#matrix-bg {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════
+   PIXEL BORDER UTILITY
+   ═══════════════════════════════════════════════════════ */
+.pixel-border {
+  border: var(--pixel-size) solid var(--border-primary);
+  box-shadow: 
+    inset calc(var(--pixel-size) * -1) calc(var(--pixel-size) * -1) 0 0 var(--border-dim),
+    var(--pixel-size) var(--pixel-size) 0 0 var(--border-dim);
+}
+
+.pixel-border-subtle {
+  border: 1px solid var(--border-dim);
+  box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.02);
+}
+
+/* ═══════════════════════════════════════════════════════
+   NAVIGATION
+   ═══════════════════════════════════════════════════════ */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: rgba(10, 10, 10, 0.95);
+  border-bottom: 1px solid var(--border-dim);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}
+
+.nav-logo {
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  color: var(--text-primary);
+  text-shadow: var(--glow-green);
+  letter-spacing: 2px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-logo .cursor-blink {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: var(--text-primary);
+  animation: blink 1s step-end infinite;
+}
+
+.nav-links {
+  display: flex;
+  gap: 8px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--text-primary);
+  border-color: var(--border-dim);
+  background: rgba(0, 255, 65, 0.05);
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
+}
+
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: 1px solid var(--border-dim);
+  color: var(--text-primary);
+  padding: 6px 10px;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .nav-hamburger { display: block; }
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 56px; left: 0; right: 0;
+    background: rgba(10, 10, 10, 0.98);
+    flex-direction: column;
+    padding: 16px;
+    border-bottom: 1px solid var(--border-dim);
+  }
+  .nav-links.open { display: flex; }
+  .nav-links a { padding: 10px 16px; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   HERO SECTION
+   ═══════════════════════════════════════════════════════ */
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px 60px;
+  overflow: hidden;
+}
+
+.hero-content {
+  max-width: 900px;
+  text-align: center;
+}
+
+.hero-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent-cyan);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  padding: 4px 12px;
+  margin-bottom: 24px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: rgba(0, 229, 255, 0.05);
+  animation: fadeInUp 0.6s ease both;
+}
+
+.hero-title-wrapper {
+  margin-bottom: 8px;
+  animation: fadeInUp 0.8s ease 0.1s both;
+}
+
+.hero-title {
+  font-family: var(--font-pixel);
+  font-size: clamp(28px, 5vw, 48px);
+  color: var(--text-primary);
+  text-shadow: var(--glow-green-strong);
+  letter-spacing: 4px;
+  line-height: 1.2;
+}
+
+.hero-version {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-top: 8px;
+  animation: fadeInUp 0.8s ease 0.2s both;
+}
+
+.hero-subtitle {
+  font-family: var(--font-mono);
+  font-size: clamp(13px, 1.8vw, 16px);
+  color: var(--text-gray);
+  margin: 24px 0 36px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.8;
+  animation: fadeInUp 0.8s ease 0.3s both;
+}
+
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 36px;
+  animation: fadeInUp 0.8s ease 0.4s both;
+}
+
+.hero-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  border: 1px solid var(--border-dim);
+  padding: 4px 10px;
+  letter-spacing: 1px;
+  transition: all var(--transition-fast);
+}
+
+.hero-tag:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+  background: rgba(0, 255, 65, 0.05);
+}
+
+.hero-cta {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeInUp 0.8s ease 0.5s both;
+}
+
+.btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-decoration: none;
+  padding: 12px 28px;
+  border: var(--pixel-size) solid var(--text-primary);
+  color: var(--text-primary);
+  background: transparent;
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all var(--transition-med);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn:hover::before { left: 100%; }
+
+.btn:hover {
+  background: rgba(0, 255, 65, 0.1);
+  box-shadow: var(--glow-green);
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  background: rgba(0, 255, 65, 0.1);
+  box-shadow: var(--glow-green);
+}
+
+.btn-secondary {
+  border-color: var(--text-muted);
+  color: var(--text-gray);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  box-shadow: var(--glow-cyan);
+}
+
+/* Terminal typing animation on hero */
+.hero-terminal {
+  margin-top: 48px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-dim);
+  border-radius: 4px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+  animation: fadeInUp 0.8s ease 0.6s both;
+  overflow: hidden;
+}
+
+.terminal-bar {
+  background: var(--bg-tertiary);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border-dim);
+}
+
+.terminal-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+
+.terminal-dot.red { background: var(--accent-red); }
+.terminal-dot.yellow { background: var(--accent-amber); }
+.terminal-dot.green { background: var(--text-primary); }
+
+.terminal-title {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: 8px;
+  flex: 1;
+  text-align: center;
+}
+
+.terminal-body {
+  padding: 20px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.8;
+  min-height: 200px;
+}
+
+.terminal-line {
+  opacity: 0;
+  animation: terminalType 0.3s ease forwards;
+}
+
+.terminal-line .prompt {
+  color: var(--accent-cyan);
+}
+
+.terminal-line .cmd {
+  color: var(--text-primary);
+}
+
+.terminal-line .comment {
+  color: var(--text-muted);
+}
+
+.terminal-line .output {
+  color: var(--text-gray);
+}
+
+.terminal-line .success {
+  color: var(--text-primary);
+}
+
+.terminal-line .warn {
+  color: var(--accent-amber);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SCREENSHOT SECTION
+   ═══════════════════════════════════════════════════════ */
+.screenshot-section {
+  position: relative;
+  z-index: 1;
+  padding: 60px 24px 80px;
+}
+
+.screenshot-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  border: 2px solid var(--border-dim);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), var(--glow-green);
+  transition: transform var(--transition-med), box-shadow var(--transition-med);
+}
+
+.screenshot-wrapper:hover {
+  transform: scale(1.01);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6), var(--glow-green-strong);
+}
+
+.screenshot-wrapper img {
+  width: 100%;
+  display: block;
+}
+
+.screenshot-label {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTIONS BASE
+   ═══════════════════════════════════════════════════════ */
+.section {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 24px;
+}
+
+.section-header {
+  margin-bottom: 48px;
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent-cyan);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-family: var(--font-pixel);
+  font-size: clamp(16px, 3vw, 22px);
+  color: var(--text-primary);
+  text-shadow: var(--glow-green);
+  letter-spacing: 2px;
+}
+
+.section-desc {
+  font-size: 13px;
+  color: var(--text-gray);
+  margin-top: 12px;
+  max-width: 600px;
+  line-height: 1.7;
+}
+
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-dim), transparent);
+  margin: 0;
+  border: none;
+}
+
+/* ═══════════════════════════════════════════════════════
+   FEATURES GRID
+   ═══════════════════════════════════════════════════════ */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  padding: 24px;
+  transition: all var(--transition-med);
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 2px;
+  background: linear-gradient(90deg, var(--text-primary), transparent);
+  opacity: 0;
+  transition: opacity var(--transition-med);
+}
+
+.feature-card:hover {
+  border-color: var(--text-dim);
+  background: var(--bg-card-hover);
+  transform: translateY(-2px);
+}
+
+.feature-card:hover::before { opacity: 1; }
+
+.feature-icon {
+  font-size: 20px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.feature-card h3 {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.feature-card p {
+  font-size: 12px;
+  color: var(--text-gray);
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════════════════
+   COMMAND REFERENCE
+   ═══════════════════════════════════════════════════════ */
+.cmd-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.cmd-category {
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  overflow: hidden;
+}
+
+.cmd-category-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-dim);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.cmd-category-header:hover {
+  background: rgba(0, 255, 65, 0.03);
+}
+
+.cmd-category-header h3 {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 1px;
+  flex: 1;
+}
+
+.cmd-category-header .toggle-icon {
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: transform var(--transition-fast);
+}
+
+.cmd-category.open .toggle-icon {
+  transform: rotate(90deg);
+}
+
+.cmd-category-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.cmd-category.open .cmd-category-body {
+  max-height: 2000px;
+}
+
+.cmd-item {
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(34, 34, 34, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: background var(--transition-fast);
+}
+
+.cmd-item:last-child { border-bottom: none; }
+.cmd-item:hover { background: rgba(0, 255, 65, 0.02); }
+
+.cmd-item code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent-cyan);
+  background: rgba(0, 229, 255, 0.05);
+  padding: 2px 6px;
+  display: inline-block;
+}
+
+.cmd-item .cmd-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════
+   INSTALL SECTION
+   ═══════════════════════════════════════════════════════ */
+.install-methods {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.install-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  overflow: hidden;
+  transition: all var(--transition-med);
+}
+
+.install-card:hover {
+  border-color: var(--text-dim);
+}
+
+.install-card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-dim);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.install-card-header .badge {
+  font-size: 9px;
+  padding: 2px 8px;
+  border: 1px solid var(--text-dim);
+  color: var(--text-primary);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.install-card-header .badge.recommended {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  background: rgba(0, 229, 255, 0.05);
+}
+
+.install-card h3 {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-primary);
+  letter-spacing: 1px;
+}
+
+.install-card-body {
+  padding: 16px 20px;
+}
+
+.install-card-body p {
+  font-size: 12px;
+  color: var(--text-gray);
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.code-block {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-dim);
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.8;
+  position: relative;
+  overflow-x: auto;
+  margin-bottom: 12px;
+}
+
+.code-block .line-comment {
+  color: var(--text-muted);
+}
+
+.code-block .line-cmd {
+  color: var(--text-primary);
+}
+
+.code-block .line-output {
+  color: var(--text-gray);
+}
+
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 255, 65, 0.1);
+  border: 1px solid var(--border-dim);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  letter-spacing: 1px;
+}
+
+.copy-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.copy-btn.copied {
+  color: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+}
+
+/* ═══════════════════════════════════════════════════════
+   PROVIDER TABLE
+   ═══════════════════════════════════════════════════════ */
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border-dim);
+  background: var(--bg-card);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.data-table thead {
+  background: var(--bg-tertiary);
+}
+
+.data-table th {
+  padding: 12px 16px;
+  text-align: left;
+  color: var(--text-primary);
+  font-weight: 600;
+  letter-spacing: 1px;
+  font-size: 11px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-dim);
+}
+
+.data-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(34, 34, 34, 0.5);
+  color: var(--text-gray);
+}
+
+.data-table tr:hover td {
+  background: rgba(0, 255, 65, 0.02);
+}
+
+.status-active {
+  color: var(--text-primary);
+  text-shadow: 0 0 5px rgba(0, 255, 65, 0.3);
+}
+
+.status-key {
+  color: var(--accent-amber);
+}
+
+/* ═══════════════════════════════════════════════════════
+   AGENT SECTION
+   ═══════════════════════════════════════════════════════ */
+.agent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.agent-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  padding: 16px;
+  transition: all var(--transition-med);
+  cursor: default;
+}
+
+.agent-card:hover {
+  border-color: var(--text-dim);
+  transform: translateY(-1px);
+}
+
+.agent-card .agent-type {
+  font-size: 9px;
+  color: var(--accent-cyan);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.agent-card h4 {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.agent-card p {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════
+   FAQ / ACCORDION
+   ═══════════════════════════════════════════════════════ */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.faq-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  overflow: hidden;
+  transition: border-color var(--transition-fast);
+}
+
+.faq-item:hover { border-color: var(--text-dim); }
+
+.faq-question {
+  padding: 16px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background var(--transition-fast);
+}
+
+.faq-question:hover { background: rgba(0, 255, 65, 0.02); }
+
+.faq-question .faq-icon {
+  color: var(--text-dim);
+  font-size: 12px;
+  transition: transform var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.faq-item.open .faq-icon { transform: rotate(90deg); }
+
+.faq-question h3 {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.faq-item.open .faq-answer { max-height: 1000px; }
+
+.faq-answer-inner {
+  padding: 0 20px 16px;
+  font-size: 12px;
+  color: var(--text-gray);
+  line-height: 1.8;
+}
+
+.faq-answer-inner code {
+  color: var(--accent-cyan);
+  background: rgba(0, 229, 255, 0.05);
+  padding: 1px 5px;
+  font-size: 11px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   INTERACTIVE TERMINAL DEMO
+   ═══════════════════════════════════════════════════════ */
+.demo-terminal {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-dim);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 32px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.demo-terminal .terminal-bar {
+  background: #1a1a1a;
+}
+
+.demo-output {
+  padding: 20px;
+  min-height: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.demo-output .output-line {
+  margin-bottom: 2px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.demo-input-wrapper {
+  border-top: 1px solid var(--border-dim);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.demo-input-wrapper .prompt-char {
+  color: var(--accent-cyan);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.demo-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  outline: none;
+  caret-color: var(--text-primary);
+}
+
+.demo-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════════════════
+   GALLERY
+   ═══════════════════════════════════════════════════════ */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.gallery-item {
+  border: 1px solid var(--border-dim);
+  overflow: hidden;
+  transition: all var(--transition-med);
+  background: var(--bg-card);
+}
+
+.gallery-item:hover {
+  border-color: var(--text-dim);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.gallery-item img {
+  width: 100%;
+  display: block;
+  transition: transform var(--transition-med);
+}
+
+.gallery-item:hover img {
+  transform: scale(1.02);
+}
+
+.gallery-caption {
+  padding: 12px 16px;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-top: 1px solid var(--border-dim);
+}
+
+/* ═══════════════════════════════════════════════════════
+   STACK / TECH SECTION
+   ═══════════════════════════════════════════════════════ */
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.stack-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  padding: 16px;
+  text-align: center;
+  transition: all var(--transition-fast);
+}
+
+.stack-item:hover {
+  border-color: var(--text-dim);
+  background: var(--bg-card-hover);
+}
+
+.stack-item .stack-name {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.stack-item .stack-desc {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════
+   ROADMAP
+   ═══════════════════════════════════════════════════════ */
+.roadmap-timeline {
+  position: relative;
+  padding-left: 32px;
+}
+
+.roadmap-timeline::before {
+  content: '';
+  position: absolute;
+  left: 10px; top: 0;
+  width: 1px; height: 100%;
+  background: var(--border-dim);
+}
+
+.roadmap-item {
+  position: relative;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  transition: all var(--transition-fast);
+}
+
+.roadmap-item::before {
+  content: '';
+  position: absolute;
+  left: -28px; top: 20px;
+  width: 8px; height: 8px;
+  border: 2px solid var(--text-primary);
+  background: var(--bg-primary);
+  border-radius: 0;
+}
+
+.roadmap-item.done::before {
+  background: var(--text-primary);
+  box-shadow: 0 0 6px rgba(0, 255, 65, 0.4);
+}
+
+.roadmap-item.planned::before {
+  border-color: var(--text-muted);
+}
+
+.roadmap-item:hover {
+  border-color: var(--text-dim);
+}
+
+.roadmap-item h4 {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.roadmap-item p {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.roadmap-item .roadmap-status {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+.roadmap-item .roadmap-status.active { color: var(--text-primary); }
+.roadmap-item .roadmap-status.planned { color: var(--text-muted); }
+
+/* ═══════════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════════ */
+.footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--border-dim);
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.footer-logo {
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  color: var(--text-primary);
+  text-shadow: var(--glow-green);
+  letter-spacing: 3px;
+  margin-bottom: 16px;
+}
+
+.footer p {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.footer a {
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer a:hover {
+  color: var(--text-primary);
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.footer-links a {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════════════ */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes terminalType {
+  from { opacity: 0; transform: translateX(-5px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes glitchFlicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.8; transform: translateX(2px); }
+  94% { opacity: 1; transform: translateX(0); }
+  96% { opacity: 0.9; transform: translateX(-1px); }
+  97% { opacity: 1; transform: translateX(0); }
+}
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Back to top */
+.back-to-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-dim);
+  color: var(--text-dim);
+  width: 40px; height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all var(--transition-med);
+  pointer-events: none;
+}
+
+.back-to-top.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.back-to-top:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+  box-shadow: var(--glow-green);
+}
+
+/* ═══════════════════════════════════════════════════════
+   TABS for sections
+   ═══════════════════════════════════════════════════════ */
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tab-bar::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border-dim);
+  padding: 8px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+  letter-spacing: 1px;
+}
+
+.tab-btn:hover {
+  color: var(--text-gray);
+  border-color: var(--text-muted);
+}
+
+.tab-btn.active {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+  background: rgba(0, 255, 65, 0.05);
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ═══════════════════════════════════════════════════════
+   SECURITY / WARNING BOX
+   ═══════════════════════════════════════════════════════ */
+.warning-box {
+  background: rgba(255, 171, 0, 0.05);
+  border: 1px solid rgba(255, 171, 0, 0.2);
+  padding: 16px 20px;
+  margin-top: 16px;
+}
+
+.warning-box .warning-title {
+  font-size: 12px;
+  color: var(--accent-amber);
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.warning-box p, .warning-box li {
+  font-size: 11px;
+  color: var(--text-gray);
+  line-height: 1.7;
+}
+
+.warning-box ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.warning-box ul li::before {
+  content: '▸ ';
+  color: var(--accent-amber);
+}
+
+.info-box {
+  background: rgba(0, 229, 255, 0.03);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  padding: 16px 20px;
+  margin-top: 16px;
+}
+
+.info-box .info-title {
+  font-size: 12px;
+  color: var(--accent-cyan);
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.info-box p {
+  font-size: 11px;
+  color: var(--text-gray);
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE FINE TUNES
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .features-grid, .cmd-grid, .install-methods {
+    grid-template-columns: 1fr;
+  }
+  .agent-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+  .stack-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .hero { padding: 100px 16px 40px; }
+  .section { padding: 48px 16px; }
+  .hero-cta { flex-direction: column; align-items: center; }
+}
+
+/* Pixel decorative corners for key sections */
+.pixel-corners {
+  position: relative;
+}
+
+.pixel-corners::before,
+.pixel-corners::after {
+  content: '';
+  position: absolute;
+  width: 8px; height: 8px;
+  border: 2px solid var(--text-dim);
+}
+
+.pixel-corners::before {
+  top: -4px; left: -4px;
+  border-right: none; border-bottom: none;
+}
+
+.pixel-corners::after {
+  bottom: -4px; right: -4px;
+  border-left: none; border-top: none;
+}
+</style>
+</head>
+<body>
+
+<!-- Matrix Rain Canvas -->
+<canvas id="matrix-bg"></canvas>
+
+<!-- Navigation -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <span>FinCLI</span>
+      <span class="cursor-blink"></span>
+    </a>
+    <button class="nav-hamburger" id="navToggle" aria-label="Menu">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#demo">Demo</a></li>
+      <li><a href="#install">Install</a></li>
+      <li><a href="#commands">Commands</a></li>
+      <li><a href="#providers">Providers</a></li>
+      <li><a href="#agents">Agents</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="https://github.com/drico2008/fincli" target="_blank" rel="noopener">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════
+     HERO
+     ═══════════════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <div class="hero-badge">Open Source Financial Terminal</div>
+    <div class="hero-title-wrapper">
+      <h1 class="hero-title">FinCLI</h1>
+    </div>
+    <p class="hero-version">v0.2.1 — Financial Terminal MVP</p>
+    <p class="hero-subtitle">
+      Modern financial CLI/TUI for market monitoring, technical analysis, AI-assisted research, portfolio tracking, watchlists, trading journals, and configurable market/news provider workflows.
+    </p>
+    <div class="hero-tags">
+      <span class="hero-tag">Market Data</span>
+      <span class="hero-tag">Technical Analysis</span>
+      <span class="hero-tag">AI Research</span>
+      <span class="hero-tag">Portfolio</span>
+      <span class="hero-tag">Watchlist</span>
+      <span class="hero-tag">Journal</span>
+      <span class="hero-tag">Scanner</span>
+      <span class="hero-tag">Multi-Provider</span>
+      <span class="hero-tag">37 AI Agents</span>
+      <span class="hero-tag">100+ Connectors</span>
+    </div>
+    <div class="hero-cta">
+      <a href="#install" class="btn btn-primary">▸ Quick Install</a>
+      <a href="#demo" class="btn btn-secondary">⌘ Try Demo</a>
+      <a href="https://github.com/drico2008/fincli" target="_blank" rel="noopener" class="btn btn-secondary">◈ GitHub</a>
+    </div>
+
+    <!-- Animated Terminal -->
+    <div class="hero-terminal">
+      <div class="terminal-bar">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="terminal-title">FinCLI v0.2.1</span>
+      </div>
+      <div class="terminal-body" id="heroTerminal">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREENSHOT
+     ═══════════════════════════════════════════════════════ -->
+<section class="screenshot-section">
+  <div class="screenshot-wrapper reveal">
+    <img src="img/fincli_dashboard.png" alt="FinCLI Dashboard — Terminal UI showing provider chain, watchlist, portfolio, and journal overview" id="screenshotImg" loading="lazy">
+  </div>
+  <p class="screenshot-label">FinCLI Dashboard — Textual TUI</p>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════════════════════════════════════════════
+     FEATURES
+     ═══════════════════════════════════════════════════════ -->
+<section class="section" id="features">
+  <div class="section-header reveal">
+    <p class="section-label">// What You Get</p>
+    <h2 class="section-title">Core Features</h2>
+    <p class="section-desc">Everything you need for professional market research, directly from your terminal.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <span class="feature-icon">📊</span>
+      <h3>Market Overview</h3>
+      <p>Professional entry point for any symbol. Data quality score, quote, RSI, MACD, ATR, trend bias, support/resistance, structure, fundamentals, and latest news in one compact view.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">📈</span>
+      <h3>Technical Analysis</h3>
+      <p>SMA, EMA, RSI, MACD, Bollinger Bands, ATR, support/resistance, volume analysis, trend bias, and technical signal scoring with Bull/Bear/Caution debate engine.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🤖</span>
+      <h3>AI-Assisted Research</h3>
+      <p>11+ AI providers including OpenAI, Gemini, Anthropic, Groq, DeepSeek, and local Ollama. Context-aware prompts with market data, news, web research, and agent frameworks.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🏗️</span>
+      <h3>Market Structure</h3>
+      <p>HH/HL, LH/LL detection, break of structure (BOS), change of character (CHOCH), liquidity areas, and risk zones for smart money concept analysis.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">💼</span>
+      <h3>Portfolio & Transactions</h3>
+      <p>Full transaction ledger with buy/sell tracking, cost basis, market value, unrealized & realized PnL, allocation view, and CSV/JSON exports.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">📋</span>
+      <h3>Watchlist & Scanner</h3>
+      <p>Build watchlists and scan with safe expressions: <code>rsi&lt;30</code>, <code>trend=bullish</code>, <code>volume&gt;avg</code>. Batch fetch, indicator calculation, and export to CSV/JSON.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">📝</span>
+      <h3>Trading Journal</h3>
+      <p>Log entries with symbol, bias, and notes. Stats track win rate, dominant instruments, emotions, and tags. AI-powered review detects patterns and improvement areas.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🔗</span>
+      <h3>Multi-Provider Chain</h3>
+      <p>Configurable fallback chain across Twelve Data, Finnhub, Alpha Vantage, Custom API, and yfinance. Automatic failover with realtime/delayed labeling.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🧠</span>
+      <h3>37 AI Agents</h3>
+      <p>Prompt-framework agents: Buffett, Graham, Lynch, Soros, Wyckoff, Dalio, Fed Watcher, FX Macro, Geopolitical Risk, and more. Shape AI analysis without changing the LLM.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">📅</span>
+      <h3>Economic Calendar</h3>
+      <p>Finnhub-powered calendar with impact filters, country selectors, date ranges, and CSV/JSON export. Local fallback when API is unavailable.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">⏱️</span>
+      <h3>Multi-Timeframe (MTF)</h3>
+      <p>Fetch multiple timeframes at once. Trend/structure/RSI/MACD alignment across 1d, 1h, 15m or custom combos. Labels like "aligned bullish" or "mixed".</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🔔</span>
+      <h3>Price Alerts</h3>
+      <p>Set above/below price alerts stored in SQLite. Manual check or interval-based runner. Triggered alerts auto-deactivate. All local, no external dependencies.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🧪</span>
+      <h3>Lightweight Backtest</h3>
+      <p>Educational SMA cross and RSI reversion strategies. Candle count, trades, total return, win rate, max drawdown, and risk notes. No fees or slippage modeled.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">📰</span>
+      <h3>News Desk</h3>
+      <p>Multi-source news: Yahoo, Finnhub, Alpha Vantage, Marketaux, NewsAPI, GNews, Google/Bing RSS. Terminal news-desk view with feed table and article detail.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🌐</span>
+      <h3>Web Research</h3>
+      <p>Lightweight HTTP web research. <code>/web</code> for AI-synthesized results, <code>/web sources</code> for raw links. No browser automation needed.</p>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🔌</span>
+      <h3>100+ Connectors</h3>
+      <p>Catalog of data connectors with honest statuses: active, planned, enterprise, optional. Categories include core data, news/sentiment, crypto/DeFi, alternative, and macro.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════════════════════════════════════════════
+     GALLERY
+     ═══════════════════════════════════════════════════════ -->
+<section class="section" id="gallery">
+  <div class="section-header reveal">
+    <p class="section-label">// Visual Preview</p>
+    <h2 class="section-title">Screenshots</h2>
+    <p class="section-desc">See FinCLI in action — from market analysis to AI chat and portfolio tracking.</p>
+  </div>
+  <div class="gallery-grid">
+    <div class="gallery-item reveal">
+      <img src="img/fincli_logo.png" alt="FinCLI Logo" loading="lazy">
+      <div class="gallery-caption">FinCLI Branding</div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="img/terminal_technical.png" alt="Technical Analysis View" loading="lazy">
+      <div class="gallery-caption">Technical Analysis</div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="img/terminal_ai_chat.png" alt="AI Chat Interface" loading="lazy">
+      <div class="gallery-caption">AI Chat</div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="img/terminal_portfolio.png" alt="Portfolio Dashboard" loading="lazy">
+      <div class="gallery-caption">Portfolio & PnL</div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="img/fincli_agents.png" alt="AI Agent Frameworks" loading="lazy">
+      <div class="gallery-caption">AI Agent Framework</div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="img/pixel_finance_bg.png" alt="Finance Pixel Art" loading="lazy">
+      <div class="gallery-caption">Terminal Aesthetic</div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════════════════════════════════════════════
+     INTERACTIVE DEMO
+     ═══════════════════════════════════════════════════════ -->
+<section class="section" id="demo">
+  <div class="section-header reveal">
+    <p class="section-label">// Try It Out</p>
+    <h2 class="section-title">Interactive Demo</h2>
+    <p class="section-desc">Type commands below to explore FinCLI features. Try <code>/help</code>, <code>/dashboard</code>, or <code>/market AAPL</code>.</p>
+  </div>
+  <div class="demo-terminal reveal">
+    <div class="terminal-bar">
+      <span class="terminal-dot red"></span>
+      <span class="terminal-dot yellow"></span>
+      <span class="terminal-dot green"></span>
+      <span class="terminal-title">FinCLI v0.2.1 — Interactive Demo</span>
+    </div>
+    <div class="demo-output" id="demoOutput">
+      <div class="output-line" style="color: var(--accent-cyan);">FinCLI v0.2.1 — Financial Terminal MVP</div>
+      <div class="output-line" style="color: var(--text-muted);">Type /help for available commands. This is a web demo — not the full TUI.</div>
+      <div class="output-line">&nbsp;</div>
+    </div>
+    <div class="demo-input-wrapper">
+      <span class="prompt-char">❯/</span>
+      <input type="text" class="demo-input" id="demoInput" placeholder="Type a command..." autocomplete="off" spellcheck="false">
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════════════════════════════════════════════
+     INSTALL
+     ═══════════════════════════════════════════════════════ -->
+<section class="section" id="install">
+  <div class="section-header reveal">
+    <p class="section-label">// Get Started</p>
+    <h2 class="section-title">Installation</h2>
+    <p class="section-desc">Multiple ways to install FinCLI. Python 3.11+ is required for all methods.</p>
+  </div>
+
+  <div class="install-methods">
+    <!-- pipx -->
+    <div class="install-card reveal">
+      <div class="install-card-header">
+        <h3>pipx (Recommended)</h3>
+        <span class="badge recommended">Recommended</span>
+      </div>
+      <div class="install-card-body">
+        <p>Isolated Python environment. The <code>fincli</code> command is globally available without polluting your system Python.</p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <div><span class="line-cmd">pip install pipx</span></div>
+          <div><span class="line-cmd">pipx ensurepath</span></div>
+          <div><span class="line-cmd">pipx install .</span></div>
+          <div><span class="line-cmd">fincli</span></div>
+        </div>
+        <p>If published to PyPI:</p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <div><span class="line-cmd">pipx install fincli</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- npm -->
+    <div class="install-card reveal">
+      <div class="install-card-header">
+        <h3>npm (Global)</h3>
+        <span class="badge">Global CLI</span>
+      </div>
+      <div class="install-card-body">
+        <p>Common "install once, run anywhere" pattern. The npm wrapper creates a local Python venv during install.</p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <div><span class="line-cmd">npm install -g @drico2008/fincli</span></div>
+          <div><span class="line-cmd">fincli</span></div>
+        </div>
+        <div class="info-box">
+          <div class="info-title">Note</div>
+          <p>The npm wrapper still requires Python 3.11+ during installation. The postinstall script creates a <code>.npm-python</code> virtual environment inside the installed package.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Local Dev -->
+    <div class="install-card reveal">
+      <div class="install-card-header">
+        <h3>Local Development</h3>
+        <span class="badge">Dev</span>
+      </div>
+      <div class="install-card-body">
+        <p>Clone the repo and install in editable mode for development.</p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <div><span class="line-cmd">python -m venv .venv</span></div>
+          <div><span class="line-cmd">.venv\Scripts\activate</span></div>
+          <div><span class="line-cmd">pip install -e ".[dev]"</span></div>
+        </div>
+        <p>Alternative using requirements.txt:</p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <div><span class="line-cmd">pip install -r requirements.txt</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Setup after install -->
+  <div class="reveal" style="margin-top: 32px;">
+    <h3 style="font-size: 14px; color: var(--text-primary); margin-bottom: 16px; letter-spacing: 1px;">⚙ Post-Install Setup</h3>
+    <p style="font-size: 12px; color: var(--text-gray); margin-bottom: 16px; line-height: 1.7;">After installing, launch <code style="color: var(--accent-cyan);">fincli</code> and save API keys directly from the terminal. No manual file editing needed.</p>
+
+    <div class="code-block" style="max-width: 700px;">
+      <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+      <div><span class="line-comment"># Save AI provider key</span></div>
+      <div><span class="line-cmd">/ai_model key groq &lt;your-api-key&gt;</span></div>
+      <div><span class="line-cmd">/ai_model key openrouter &lt;your-api-key&gt;</span></div>
+      <div>&nbsp;</div>
+      <div><span class="line-comment"># Save market/news provider key</span></div>
+      <div><span class="line-cmd">/news_model key finnhub &lt;your-api-key&gt;</span></div>
+      <div><span class="line-cmd">/news_model key twelvedata &lt;your-api-key&gt;</span></div>
+    </div>
+
+    <div class="warning-box">
+      <div class="warning-title">⚠ Security</div>
+      <ul>
+        <li>API keys are stored locally at <code>~/.fincli/secrets.env</code></li>
+        <li>Keys are never printed in full in the terminal</li>
+        <li>Do not commit <code>.env</code> or <code>secrets.env</code> to version control</li>
+        <li>If a key was ever exposed, revoke and rotate it immediately</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════════════════════════════════════════════
+     COMMANDS
+     ═══════════════════════════════════════════════════════ -->
+<section class="section" id="commands">
+  <div class="section-header reveal">
+    <p class="section-label">// Command Reference</p>
+    <h2 class="section-title">All Commands</h2>
+    <p class="section-desc">Click any category to expand the full command list. FinCLI uses slash commands for all actions.</p>
+  </div>
+
+  <div class="cmd-grid">
+    <!-- Core -->
+    <div class="cmd-category open reveal" id="cmdCore">
+      <div class="cmd-category-header" onclick="toggleCmd('cmdCore')">
+        <h3>⌘ Core</h3>
+        <span class="toggle-icon">▸</span>
+      </div>
+      <div class="cmd-category-body">
+        <div class="cmd-item"><code>/help</code><span class="cmd-desc">Show all available commands</span></div>
+        <div class="cmd-item"><code>/dashboard</code><span class="cmd-desc">Compact overview: provider, watchlist, portfolio, journal</span></div>
+        <div class="cmd-item"><code>/config</code><span class="cmd-desc">Display active configuration (keys are masked)</span></div>
+        <div class="cmd-item"><code>/doctor</code><span class="cmd-desc">Environment diagnostics: runtime, storage, providers, API keys</span></div>
+        <div class="cmd-item"><code>/setup</code><span class="cmd-desc">Onboarding guide for AI and market provider keys</span></div>
+        <div class="cmd-item"><code>/clear</code><span class="cmd-desc">Clear the terminal screen</span></div>
+        <div class="cmd-item"><code>/exit</code><span class="cmd-desc">Exit FinCLI</span></div>
+      </div>
+    </div>
+
+    <!-- Market Data -->
+    <div class="cmd-category reveal" id="cmdMarket">
+      <div class="cmd-category-header" onclick="toggleCmd('cmdMarket')">
+        <h3>📊 Market Data</h3>
+        <span class="toggle-icon">▸</span>
+      </div>
+      <div class="cmd-category-body">
+        <div class="cmd-item"><code>/market AAPL 1d</code><span class="cmd-desc">Full market overview: quote, technicals, structure, fundamentals, news</span></div>
+        <div class="cmd-item"><code>/technical BTC-USD 1d</code><span class="cmd-desc">Technical analysis with signal scoring and debate engine</span></div>
+        <div class="cmd-item"><code>/mtf AAPL 1d,1h,15m</code><span class="cmd-desc">Multi-timeframe alignment analysis</span></div>
+        <div class="cmd-item"><code>/structure BTC-USD 1d</code><span class="cmd-desc">Market structure: HH/HL, BOS, CHOCH, liquidity zones</span></div>
+        <div class="cmd-item"><code>/news AAPL</code><span class="cmd-desc">News desk view with multi-source feed</span></div>
+        <div class="cmd-item"><code>/funda MSFT</code><span class="cmd-desc">Fundamental snapshot</span></div>
+        <div class="cmd-item"><code>/symbol XAUUSD</code><span class="cmd-desc">Symbol search and provider normalization</span></div>
+        <div class="cmd-item"><code>/calendar today</code><span class="cmd-desc">Economic calendar with impact filters</span></div>
+        <div class="cmd-item"><code>/backtest AAPL sma_cross 1d</code><span class="cmd-desc">Lightweight educational backtesting</span></div>
+      </div>
+    </div>
+
+    <!-- Portfolio -->
+    <div class="cmd-category reveal" id="cmdPortfolio">
+      <div class="cmd-category-header" onclick="toggleCmd('cmdPortfolio')">
+        <h3>💼 Portfolio & Journal</h3>
+        <span class="toggle-icon">▸</span>
+      </div>
+      <div class="cmd-category-body">
+        <div class="cmd-item"><code>/portfolio</code><span class="cmd-desc">View current portfolio positions</span></div>
+        <div class="cmd-item"><code>/tx add buy AAPL 10 185</code><span class="cmd-desc">Add a buy transaction</span></div>
+        <div class="cmd-item"><code>/tx add sell AAPL 5 195</code><span class="cmd-desc">Add a sell transaction</span></div>
+        <div class="cmd-item"><code>/portfolio performance</code><span class="cmd-desc">Cost basis, market value, PnL breakdown</span></div>
+        <div class="cmd-item"><code>/journal add BTC-USD bullish "..."</code><span class="cmd-desc">Log a trading journal entry</span></div>
+        <div class="cmd-item"><code>/journal stats</code><span class="cmd-desc">Win rate, dominant instruments, emotions, tags</span></div>
+        <div class="cmd-item"><code>/journal review</code><span class="cmd-desc">AI-powered journal process review</span></div>
+        <div class="cmd-item"><code>/export portfolio json file.json</code><span class="cmd-desc">Export portfolio/journal to CSV or JSON</span></div>
+      </div>
+    </div>
+
+    <!-- Watchlist & Scanner -->
+    <div class="cmd-category reveal" id="cmdWatch">
+      <div class="cmd-category-header" onclick="toggleCmd('cmdWatch')">
+        <h3>📋 Watchlist & Scanner</h3>
+        <span class="toggle-icon">▸</span>
+      </div>
+      <div class="cmd-category-body">
+        <div class="cmd-item"><code>/watchlist</code><span class="cmd-desc">View current watchlist</span></div>
+        <div class="cmd-item"><code>/watchlist add AAPL</code><span class="cmd-desc">Add symbol to watchlist</span></div>
+        <div class="cmd-item"><code>/watchlist remove AAPL</code><span class="cmd-desc">Remove symbol from watchlist</span></div>
+        <div class="cmd-item"><code>/scan watchlist rsi&lt;30</code><span class="cmd-desc">Scan for oversold symbols</span></div>
+        <div class="cmd-item"><code>/scan watchlist trend=bullish</code><span class="cmd-desc">Scan for bullish trend</span></div>
+        <div class="cmd-item"><code>/scan watchlist rsi&lt;30 and trend=bullish</code><span class="cmd-desc">Combined expression scan</span></div>
+        <div class="cmd-item"><code>/scan export csv scan.csv rsi&lt;30</code><span class="cmd-desc">Export scan results</span></div>
+      </div>
+    </div>
+
+    <!-- AI & Agents -->
+    <div class="cmd-category reveal" id="cmdAI">
+      <div class="cmd-category-header" onclick="toggleCmd('cmdAI')">
+        <h3>🤖 AI & Agents</h3>
+        <span class="toggle-icon">▸</span>
+      </div>
+      <div class="cmd-category-body">
+        <div class="cmd-item"><code>/ai explain today's risk</code><span class="cmd-desc">AI chat with market context</span></div>
+        <div class="cmd-item"><code>/analyze AAPL 1d</code><span class="cmd-desc">Full AI-powered analysis with indicators, structure, news</span></div>
+        <div class="cmd-item"><code>/web why is rupiah weakening</code><span class="cmd-desc">Web research summarized by AI</span></div>
+        <div class="cmd-item"><code>/web sources gold price update</code><span class="cmd-desc">Raw web sources without AI</span></div>
+        <div class="cmd-item"><code>/ai_model</code><span class="cmd-desc">Interactive AI provider/model selector</span></div>
+        <div class="cmd-item"><code>/ai_model key groq &lt;key&gt;</code><span class="cmd-desc">Save AI provider API key</span></div>
+        <div class="cmd-item"><code>/agent list</code><span class="cmd-desc">List all 37 analysis agents</span></div>
+        <div class="cmd-item"><code>/agent use buffett</code><span class="cmd-desc">Activate an agent framework</span></div>
+      </div>
+    </div>
+
+    <!-- Providers -->
+    <div class="cmd-category reveal" id="cmdProviders">
+      <div class="cmd-category-header" onclick="toggleCmd('cmdProviders')">
+        <h3>🔗 Providers</h3>
+        <span class="toggle-icon">▸</span>
+      </div>
+      <div class="cmd-category-body">
+        <div class="cmd-item"><code>/news_model</code><span class="cmd-desc">Interactive market/news provider selector</span></div>
+        <div class="cmd-item"><code>/provider status</code><span class="cmd-desc">Active provider and fallback chain</span></div>
+        <div class="cmd-item"><code>/provider test AAPL</code><span class="cmd-desc">Test active provider with a symbol</span></div>
+        <div class="cmd-item"><code>/provider entitlement</code><span class="cmd-desc">Check realtime/delayed access</span></div>
+        <div class="cmd-item"><code>/provider priority twelvedata,finnhub,yfinance</code><span class="cmd-desc">Set fallback chain priority</span></div>
+        <div class="cmd-item"><code>/connector list</code><span class="cmd-desc">Browse 100+ data connector catalog</span></div>
+        <div class="cmd-item"><code>/connector show polygon</code><span class="cmd-desc">Show connector details and status</span></div>
+        <div class="cmd-item"><code>/cache stats</code><span class="cmd-desc">View cache hit/miss statistics</span></div>
+      </div>
+    </div>
+
+    <!-- Alerts & History -->
+    <div class="cmd-category reveal" id="cmdAlerts">
+      <div class="cmd-category-header" onclick="toggleCmd('cmdAlerts')">
+        <h3>🔔 Alerts & History</h3>
+        <span class="toggle-icon">▸</span>
+      </div>
+      <div class="cmd-category-body">
+        <div class="cmd-item"><code>/alert add AAPL above 200</code><span class="cmd-desc">Set a price alert</span></div>
+        <div class="cmd-item"><code>/alert check</code><span class="cmd-desc">Check all active alerts</span></div>
+        <div class="cmd-item"><code>/alert run interval 60</code><span class="cmd-desc">Non-blocking alert runner</span></div>
+        <div class="cmd-item"><code>/history</code><span class="cmd-desc">View session history</span></div>
+        <div class="cmd-item"><code>/history save "Morning research"</code><span class="cmd-desc">Save current session with label</span></div>
+        <div class="cmd-item"><code>/report market AAPL md report.md</code><span class="cmd-desc">Export market report to Markdown</span></div>
+      </div>
+    </div>
+
+    <!-- Yahoo -->
+    <div class="cmd-category reveal" id="cmdYahoo">
+      <div class="cmd-category-header" onclick="toggleCmd('cmdYahoo')">
+        <h3>🌐 Yahoo Finance Tables</h3>
+        <span class="toggle-icon">▸</span>
+      </div>
+      <div class="cmd-category-body">
+        <div class="cmd-item"><code>/yahoo BBRI history 6mo 1d</code><span class="cmd-desc">Historical OHLCV data</span></div>
+        <div class="cmd-item"><code>/yahoo BBRI statistics</code><span class="cmd-desc">Key statistics</span></div>
+        <div class="cmd-item"><code>/yahoo BBRI profile</code><span class="cmd-desc">Company profile</span></div>
+        <div class="cmd-item"><code>/yahoo BBRI financials</code><span class="cmd-desc">Income statement</span></div>
+        <div class="cmd-item"><code>/yahoo BBRI balance</code><span class="cmd-desc">Balance sheet</span></div>
+        <div class="cmd-item"><code>/yahoo BBRI cashflow</code><span class="cmd-desc">Cash flow statement</span></div>
+        <div class="cmd-item"><code>/yahoo BBRI analysis</code><span class="cmd-desc">Analyst estimates</span></div>
+        <div class="cmd-item"><code>/yahoo BBRI holders</code><span class="cmd-desc">Institutional/insider holders</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════════════════════════════════════════════
+     PROVIDERS
+     ═══════════════════════════════════════════════════════ -->
+<section class="section" id="providers">
+  <div class="section-header reveal">
+    <p class="section-label">// Data & AI Sources</p>
+    <h2 class="section-title">Providers</h2>
+    <p class="section-desc">FinCLI supports multiple market data and AI providers. Configure your preferred chain for best coverage.</p>
+  </div>
+
+  <!-- Tab switcher -->
+  <div class="tab-bar reveal">
+    <button class="tab-btn active" onclick="switchTab('marketProviders', this)">Market Data</button>
+    <button class="tab-btn" onclick="switchTab('aiProviders', this)">AI Providers</button>
+    <button class="tab-btn" onclick="switchTab('instrumentCoverage', this)">Instruments</button>
+  </div>
+
+  <!-- Market Providers Tab -->
+  <div class="tab-panel active" id="marketProviders">
+    <div class="table-wrapper reveal">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Provider</th>
+            <th>Key Env</th>
+            <th>Coverage</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="status-active">yfinance</span></td>
+            <td style="color:var(--text-muted)">No key needed</td>
+            <td>Stocks, ETFs, Forex, Crypto, Indices, Commodities</td>
+            <td><span class="status-active">● Active (fallback)</span></td>
+          </tr>
+          <tr>
+            <td><span class="status-active">Twelve Data</span></td>
+            <td><code class="status-key">TWELVE_DATA_API_KEY</code></td>
+            <td>Multi-asset: forex, metals, global stocks, crypto, indices</td>
+            <td><span class="status-active">● Active</span></td>
+          </tr>
+          <tr>
+            <td><span class="status-active">Finnhub</span></td>
+            <td><code class="status-key">FINNHUB_API_KEY</code></td>
+            <td>Stocks, forex/crypto candles, company news, calendar</td>
+            <td><span class="status-active">● Active</span></td>
+          </tr>
+          <tr>
+            <td><span class="status-active">Alpha Vantage</span></td>
+            <td><code class="status-key">ALPHA_VANTAGE_API_KEY</code></td>
+            <td>Stocks, FX quote/history, news sentiment, company overview</td>
+            <td><span class="status-active">● Active</span></td>
+          </tr>
+          <tr>
+            <td><span class="status-active">Custom API</span></td>
+            <td><code class="status-key">MARKET_DATA_API_KEY</code></td>
+            <td>Any instrument your API exposes via FinCLI schema</td>
+            <td><span class="status-active">● Active</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-box reveal" style="margin-top: 16px;">
+      <div class="info-title">Recommended Provider Priority</div>
+      <p><code>/provider priority twelvedata,finnhub,yfinance</code> — Twelve Data first for forex/indices/metals, Finnhub for stocks/news, yfinance as free delayed fallback.</p>
+    </div>
+  </div>
+
+  <!-- AI Providers Tab -->
+  <div class="tab-panel" id="aiProviders">
+    <div class="table-wrapper reveal">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Provider</th>
+            <th>Key Env</th>
+            <th>Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>OpenRouter</td><td><code class="status-key">OPENROUTER_API_KEY</code></td><td>OpenAI-compatible</td></tr>
+          <tr><td>OpenAI</td><td><code class="status-key">OPENAI_API_KEY</code></td><td>OpenAI-compatible</td></tr>
+          <tr><td>Gemini</td><td><code class="status-key">GEMINI_API_KEY</code></td><td>Gemini API</td></tr>
+          <tr><td>Anthropic</td><td><code class="status-key">ANTHROPIC_API_KEY</code></td><td>Anthropic API</td></tr>
+          <tr><td>Groq</td><td><code class="status-key">GROQ_API_KEY</code></td><td>OpenAI-compatible</td></tr>
+          <tr><td>Together</td><td><code class="status-key">TOGETHER_API_KEY</code></td><td>OpenAI-compatible</td></tr>
+          <tr><td>DeepSeek</td><td><code class="status-key">DEEPSEEK_API_KEY</code></td><td>OpenAI-compatible</td></tr>
+          <tr><td>HuggingFace</td><td><code class="status-key">HUGGINGFACE_API_KEY</code></td><td>OpenAI-compatible</td></tr>
+          <tr><td>MiniMax</td><td><code class="status-key">MINIMAX_API_KEY</code></td><td>OpenAI-compatible</td></tr>
+          <tr><td>NVIDIA NIM</td><td><code class="status-key">NVIDIA_NIM_API_KEY</code></td><td>OpenAI-compatible</td></tr>
+          <tr><td>Ollama</td><td style="color:var(--text-muted)">OLLAMA_BASE_URL</td><td>Local endpoint</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Instruments Tab -->
+  <div class="tab-panel" id="instrumentCoverage">
+    <div class="reveal">
+      <p style="font-size: 12px; color: var(--text-gray); margin-bottom: 16px; line-height: 1.7;">Coverage depends on provider, symbol format, subscription plan, and exchange entitlement. FinCLI accepts common aliases and normalizes them for each provider.</p>
+      <div class="code-block" style="max-width: 600px;">
+        <div><span class="line-comment"># Common symbol aliases</span></div>
+        <div><span class="line-cmd">EURUSD</span> <span class="line-comment">→ EURUSD=X (yfinance), EUR/USD (Twelve Data)</span></div>
+        <div><span class="line-cmd">XAUUSD</span> <span class="line-comment">→ XAUUSD=X (yfinance), XAU/USD (Twelve Data)</span></div>
+        <div><span class="line-cmd">SPX</span>    <span class="line-comment">→ ^GSPC (yfinance)</span></div>
+        <div><span class="line-cmd">BBRI</span>   <span class="line-comment">→ BBRI.JK (yfinance, auto-mapped IDX)</span></div>
+        <div><span class="line-cmd">BTC-USD</span> <span class="line-comment">→ crypto pair across providers</span></div>
+        <div><span class="line-cmd">WTI</span>    <span class="line-comment">→ CL=F (yfinance)</span></div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <h4 style="font-size: 13px; color: var(--text-primary); margin-bottom: 12px;">Supported Asset Classes</h4>
+        <div class="stack-grid">
+          <div class="stack-item"><div class="stack-name">Stocks</div><div class="stack-desc">US, IDX, Global</div></div>
+          <div class="stack-item"><div class="stack-name">Forex</div><div class="stack-desc">Major & Minor Pairs</div></div>
+          <div class="stack-item"><div class="stack-name">Crypto</div><div class="stack-desc">BTC, ETH, Alts</div></div>
+          <div class="stack-item"><div class="stack-name">Indices</div><div class="stack-desc">SPX, NASDAQ, DAX</div></div>
+          <div class="stack-item"><div class="stack-name">Commodities</div><div class="stack-desc">Gold, Oil, Silver</div></div>
+          <div class="stack-item"><div class="stack-name">ETFs</div><div class="stack-desc">SPY, QQQ, IWM</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════════════════════════════════════════════
+     AGENTS
+     ═══════════════════════════════════════════════════════ -->
+<section class="section" id="agents">
+  <div class="section-header reveal">
+    <p class="section-label">// AI Framework</p>
+    <h2 class="section-title">37 Analysis Agents</h2>
+    <p class="section-desc">Prompt-framework agents shape AI analysis style without changing the LLM provider. Use <code>/agent use &lt;name&gt;</code> to activate.</p>
+  </div>
+
+  <div class="tab-bar reveal">
+    <button class="tab-btn active" onclick="switchTab('agentTrader', this)">Trader</button>
+    <button class="tab-btn" onclick="switchTab('agentInvestor', this)">Investor</button>
+    <button class="tab-btn" onclick="switchTab('agentEconomic', this)">Economic</button>
+    <button class="tab-btn" onclick="switchTab('agentGeopolitics', this)">Geopolitics</button>
+  </div>
+
+  <div class="tab-panel active" id="agentTrader">
+    <div class="agent-grid">
+      <div class="agent-card reveal"><div class="agent-type">Trader</div><h4>Wyckoff</h4><p>Accumulation/distribution phases, spring, markup/markdown cycles</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Trader</div><h4>SMC Trader</h4><p>Smart money concept: order blocks, FVG, liquidity sweeps</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Trader</div><h4>ICT Trader</h4><p>ICT concepts: OTE, breaker blocks, killzones</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Trader</div><h4>Swing Trader</h4><p>Multi-day swing setups with trend confirmation</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Trader</div><h4>Scalper</h4><p>Intraday scalping with quick entries and exits</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Trader</div><h4>Druckenmiller</h4><p>Top-down macro + concentrated momentum positions</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Trader</div><h4>Soros</h4><p>Reflexivity theory and macro imbalance trading</p></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="agentInvestor">
+    <div class="agent-grid">
+      <div class="agent-card reveal"><div class="agent-type">Investor</div><h4>Buffett</h4><p>Value investing: moats, margin of safety, long-term compounding</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Investor</div><h4>Graham</h4><p>Intelligent investor: net-net, earnings stability, conservative valuation</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Investor</div><h4>Lynch</h4><p>GARP: growth at reasonable price, PEG ratio, invest in what you know</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Investor</div><h4>Munger</h4><p>Mental models, quality businesses, circle of competence</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Investor</div><h4>Klarman</h4><p>Deep value, distressed assets, wide margin of safety</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Investor</div><h4>Marks</h4><p>Market cycles, second-level thinking, risk assessment</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Investor</div><h4>Dalio</h4><p>All-weather portfolio, macro cycles, risk parity</p></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="agentEconomic">
+    <div class="agent-grid">
+      <div class="agent-card reveal"><div class="agent-type">Economic</div><h4>Fed Watcher</h4><p>FOMC, rate decisions, dot plot, Fed rhetoric analysis</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Economic</div><h4>FX Macro</h4><p>Currency pairs, interest rate differentials, carry trades</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Economic</div><h4>Bond Analyst</h4><p>Yield curves, credit spreads, duration, convexity</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Economic</div><h4>Inflation Tracker</h4><p>CPI, PPI, PCE, breakeven rates, real yields</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Economic</div><h4>Commodity Analyst</h4><p>Supply/demand, seasonal patterns, contango/backwardation</p></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="agentGeopolitics">
+    <div class="agent-grid">
+      <div class="agent-card reveal"><div class="agent-type">Geopolitics</div><h4>Geopolitical Risk</h4><p>Conflict analysis, sanctions impact, trade war effects</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Geopolitics</div><h4>Emerging Markets</h4><p>EM-specific risk: currency, politics, capital flows</p></div>
+      <div class="agent-card reveal"><div class="agent-type">Geopolitics</div><h4>Energy Geopolitics</h4><p>OPEC, oil embargoes, energy transition policy</p></div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════════════════════════════════════════════
+     TECH STACK
+     ═══════════════════════════════════════════════════════ -->
+<section class="section" id="stack">
+  <div class="section-header reveal">
+    <p class="section-label">// Built With</p>
+    <h2 class="section-title">Tech Stack</h2>
+  </div>
+  <div class="stack-grid">
+    <div class="stack-item reveal"><div class="stack-name">Python 3.11+</div><div class="stack-desc">Core Runtime</div></div>
+    <div class="stack-item reveal"><div class="stack-name">Textual</div><div class="stack-desc">Terminal UI Framework</div></div>
+    <div class="stack-item reveal"><div class="stack-name">Rich</div><div class="stack-desc">Tables & Panels</div></div>
+    <div class="stack-item reveal"><div class="stack-name">SQLite</div><div class="stack-desc">Local Storage</div></div>
+    <div class="stack-item reveal"><div class="stack-name">httpx</div><div class="stack-desc">API & Web Research</div></div>
+    <div class="stack-item reveal"><div class="stack-name">yfinance</div><div class="stack-desc">Market Fallback</div></div>
+    <div class="stack-item reveal"><div class="stack-name">pandas</div><div class="stack-desc">Data Analysis</div></div>
+    <div class="stack-item reveal"><div class="stack-name">numpy</div><div class="stack-desc">Numeric Compute</div></div>
+    <div class="stack-item reveal"><div class="stack-name">python-dotenv</div><div class="stack-desc">Env Config</div></div>
+    <div class="stack-item reveal"><div class="stack-name">pytest</div><div class="stack-desc">Testing (113 passed)</div></div>
+    <div class="stack-item reveal"><div class="stack-name">npm wrapper</div><div class="stack-desc">Global CLI Install</div></div>
+  </div>
+
+  <div class="info-box reveal" style="margin-top: 20px;">
+    <div class="info-title">Why Textual?</div>
+    <p>FinCLI needs an interactive terminal dashboard, not a static CLI. Textual provides a reactive widget system for the TUI while Rich handles formatted tables, panels, Markdown rendering, and structured output.</p>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════════════════════════════════════════════
+     LOCAL STORAGE
+     ═══════════════════════════════════════════════════════ -->
+<section class="section" id="storage">
+  <div class="section-header reveal">
+    <p class="section-label">// Data & Config</p>
+    <h2 class="section-title">Local Storage</h2>
+    <p class="section-desc">All data stays on your machine. No cloud sync required.</p>
+  </div>
+
+  <div class="code-block reveal" style="max-width: 500px;">
+    <div><span class="line-comment"># Local storage paths</span></div>
+    <div><span class="line-cmd">~/.fincli/config.json</span>    <span class="line-comment"># Preferences</span></div>
+    <div><span class="line-cmd">~/.fincli/fincli.db</span>      <span class="line-comment"># SQLite database</span></div>
+    <div><span class="line-cmd">~/.fincli/fincli.log</span>     <span class="line-comment"># Logs</span></div>
+    <div><span class="line-cmd">~/.fincli/secrets.env</span>    <span class="line-comment"># API keys (masked)</span></div>
+  </div>
+
+  <p class="reveal" style="font-size: 12px; color: var(--text-gray); margin-top: 16px; line-height: 1.7;">
+    The SQLite database stores watchlist, portfolio, transactions, journal, session history, and market cache. The two-layer cache (runtime memory + persistent SQLite) reduces API rate-limit pressure and speeds up scanner workflows.
+  </p>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════════════════════════════════════════════
+     ROADMAP
+     ═══════════════════════════════════════════════════════ -->
+<section class="section" id="roadmap">
+  <div class="section-header reveal">
+    <p class="section-label">// What's Next</p>
+    <h2 class="section-title">Roadmap</h2>
+  </div>
+
+  <div class="tab-bar reveal">
+    <button class="tab-btn active" onclick="switchTab('roadmapV02', this)">v0.2 (Active)</button>
+    <button class="tab-btn" onclick="switchTab('roadmapV03', this)">v0.3 (Planned)</button>
+  </div>
+
+  <div class="tab-panel active" id="roadmapV02">
+    <div class="roadmap-timeline reveal">
+      <div class="roadmap-item done">
+        <h4>Multi-Provider Adapters</h4>
+        <p>Alpha Vantage, Twelve Data, Finnhub, Custom API with configurable fallback chain.</p>
+        <span class="roadmap-status active">✓ Shipped</span>
+      </div>
+      <div class="roadmap-item done">
+        <h4>Symbol Normalization</h4>
+        <p>Provider-specific symbol mapping via <code>/symbol</code> and <code>/symbol normalize</code>.</p>
+        <span class="roadmap-status active">✓ Shipped</span>
+      </div>
+      <div class="roadmap-item done">
+        <h4>Economic Calendar</h4>
+        <p>Finnhub-powered with impact filters, country selectors, and CSV/JSON export.</p>
+        <span class="roadmap-status active">✓ Shipped</span>
+      </div>
+      <div class="roadmap-item done">
+        <h4>Scanner Export</h4>
+        <p>Export matched scan results from watchlist to CSV or JSON.</p>
+        <span class="roadmap-status active">✓ Shipped</span>
+      </div>
+      <div class="roadmap-item done">
+        <h4>Lightweight Backtesting</h4>
+        <p>SMA cross and RSI reversion strategies with educational metrics.</p>
+        <span class="roadmap-status active">✓ Shipped</span>
+      </div>
+      <div class="roadmap-item done">
+        <h4>Price Alert System</h4>
+        <p>Above/below alerts stored in SQLite with manual and interval-based checking.</p>
+        <span class="roadmap-status active">✓ Shipped</span>
+      </div>
+      <div class="roadmap-item done">
+        <h4>Market Reports</h4>
+        <p>Exportable reports to Markdown/JSON with optional web, MTF, and backtest sections.</p>
+        <span class="roadmap-status active">✓ Shipped</span>
+      </div>
+      <div class="roadmap-item done">
+        <h4>Multi-Timeframe Analysis</h4>
+        <p>Fetch multiple timeframes and summarize alignment (bullish, bearish, mixed).</p>
+        <span class="roadmap-status active">✓ Shipped</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="roadmapV03">
+    <div class="roadmap-timeline reveal">
+      <div class="roadmap-item planned">
+        <h4>Plugin System</h4>
+        <p>User-extensible plugins for custom indicators, providers, and workflows.</p>
+        <span class="roadmap-status planned">◇ Planned</span>
+      </div>
+      <div class="roadmap-item planned">
+        <h4>Strategy Builder</h4>
+        <p>Visual or config-based strategy composition with backtest integration.</p>
+        <span class="roadmap-status planned">◇ Planned</span>
+      </div>
+      <div class="roadmap-item planned">
+        <h4>Advanced Portfolio Analytics</h4>
+        <p>Sharpe ratio, drawdown charts, sector breakdown, correlation matrix.</p>
+        <span class="roadmap-status planned">◇ Planned</span>
+      </div>
+      <div class="roadmap-item planned">
+        <h4>Notification Integrations</h4>
+        <p>Telegram, Discord, email alerts when price targets are hit.</p>
+        <span class="roadmap-status planned">◇ Planned</span>
+      </div>
+      <div class="roadmap-item planned">
+        <h4>Optional Cloud Sync</h4>
+        <p>Sync portfolio, watchlist, and journal across devices.</p>
+        <span class="roadmap-status planned">◇ Planned</span>
+      </div>
+      <div class="roadmap-item planned">
+        <h4>Realtime Streaming</h4>
+        <p>WebSocket streaming where supported by provider plans.</p>
+        <span class="roadmap-status planned">◇ Planned</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════════════════════════════════════════════
+     FAQ / TROUBLESHOOTING
+     ═══════════════════════════════════════════════════════ -->
+<section class="section" id="faq">
+  <div class="section-header reveal">
+    <p class="section-label">// Help</p>
+    <h2 class="section-title">FAQ & Troubleshooting</h2>
+  </div>
+
+  <div class="faq-list">
+    <div class="faq-item reveal">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-icon">▸</span>
+        <h3>What is FinCLI?</h3>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          FinCLI is a modern financial CLI/TUI terminal for market monitoring, technical analysis, AI-assisted research, portfolio tracking, watchlists, trading journals, and configurable market/news provider workflows. It runs entirely in your terminal using Python's Textual framework for an interactive dashboard experience.
+        </div>
+      </div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-icon">▸</span>
+        <h3>Do I need API keys to use FinCLI?</h3>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          No. FinCLI works out of the box with <code>yfinance</code> as a free delayed data fallback. API keys are optional — you can add them for better coverage, realtime data, or AI features. Use <code>/setup</code> to see the onboarding guide.
+        </div>
+      </div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-icon">▸</span>
+        <h3>"fincli" is not recognized as a command</h3>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          Reinstall with <code>pip install -e .</code>, <code>pipx install .</code>, or <code>npm install -g .</code> from the project root. Make sure Python 3.11+ is on your PATH. For pipx, run <code>pipx ensurepath</code> after installation.
+        </div>
+      </div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-icon">▸</span>
+        <h3>The TUI looks cramped or broken</h3>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          Increase your terminal window size. FinCLI's single-column layout with inline command palette needs a reasonable width. Most modern terminals (Windows Terminal, iTerm2, GNOME Terminal) work well at 120+ columns.
+        </div>
+      </div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-icon">▸</span>
+        <h3>API key is not detected</h3>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          Use <code>/ai_model key &lt;provider&gt; &lt;key&gt;</code> or <code>/news_model key &lt;provider&gt; &lt;key&gt;</code> to save keys directly. Then verify with <code>/config</code> or <code>/provider key status</code>. Keys are stored at <code>~/.fincli/secrets.env</code>.
+        </div>
+      </div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-icon">▸</span>
+        <h3>Market data fails for a symbol</h3>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          Check the symbol format for the active provider. Use <code>/symbol normalize &lt;symbol&gt;</code> to see how FinCLI maps it. Test with <code>/provider test &lt;symbol&gt;</code>. For non-US stocks, use Yahoo exchange suffixes like <code>BBRI.JK</code>, <code>HSBA.L</code>, etc.
+        </div>
+      </div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-icon">▸</span>
+        <h3>Is the data realtime?</h3>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          yfinance data is usually delayed. API providers (Twelve Data, Finnhub, Alpha Vantage) may provide realtime data depending on subscription plan and exchange entitlement. FinCLI labels data status as <em>realtime</em>, <em>delayed</em>, <em>fallback</em>, or <em>unavailable</em>. Use <code>/provider entitlement</code> to check.
+        </div>
+      </div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-icon">▸</span>
+        <h3>Config is corrupted</h3>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          Delete <code>~/.fincli/config.json</code> to return to defaults. API keys in <code>secrets.env</code> are separate and will not be affected. Run <code>/doctor</code> after to verify everything is healthy.
+        </div>
+      </div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-icon">▸</span>
+        <h3>How do I run tests?</h3>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          Run <code>pytest</code> from the project root. Latest verification: 113 tests passed. For the npm wrapper, use <code>npm run check</code> and <code>npm pack --dry-run</code>.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ═══════════════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-logo">FinCLI</div>
+  <p>Modern Financial Terminal — CLI/TUI for Market Research</p>
+  <p style="color: var(--text-muted); font-size: 10px; margin-top: 8px;">
+    FinCLI does not provide financial advice. All signals, scores, and analysis are educational. Verify data independently before making financial decisions.
+  </p>
+  <div class="footer-links">
+    <a href="https://github.com/drico2008/fincli" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://www.npmjs.com/package/@drico2008/fincli" target="_blank" rel="noopener">npm</a>
+    <a href="#install">Install</a>
+    <a href="#commands">Commands</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <p style="margin-top: 24px; font-size: 10px;">© 2026 FinCLI. Open Source.</p>
+</footer>
+
+<!-- Back to Top -->
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
+
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════ -->
+<script>
+// ─── Matrix Rain Background ─────────────────────────────
+(function initMatrix() {
+  const canvas = document.getElementById('matrix-bg');
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const chars = '01$€¥£₹₿▲▼◆◇□■├┤┬┴┼═║╔╗╚╝░▒▓';
+  const fontSize = 14;
+  const columns = Math.floor(canvas.width / fontSize);
+  const drops = Array(columns).fill(1);
+
+  function draw() {
+    ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#00ff41';
+    ctx.font = fontSize + 'px monospace';
+
+    for (let i = 0; i < drops.length; i++) {
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+      drops[i]++;
+    }
+  }
+
+  setInterval(draw, 50);
+})();
+
+// ─── Navigation Toggle ──────────────────────────────────
+document.getElementById('navToggle').addEventListener('click', function() {
+  document.getElementById('navLinks').classList.toggle('open');
+});
+
+// Close menu on link click (mobile)
+document.querySelectorAll('.nav-links a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.getElementById('navLinks').classList.remove('open');
+  });
+});
+
+// ─── Hero Terminal Animation ─────────────────────────────
+(function heroTerminal() {
+  const lines = [
+    { type: 'prompt', text: '❯ pip install pipx && pipx install fincli' },
+    { type: 'output', text: '  ✓ fincli installed successfully' },
+    { type: 'empty' },
+    { type: 'prompt', text: '❯ fincli' },
+    { type: 'success', text: '  FinCLI v0.2.1 — Financial Terminal MVP' },
+    { type: 'output', text: '  Loading providers: yfinance (fallback) ...' },
+    { type: 'output', text: '  Dashboard ready.' },
+    { type: 'empty' },
+    { type: 'prompt', text: '❯/ /market AAPL 1d' },
+    { type: 'output', text: '  ┌─ AAPL — Apple Inc. ─────────────────────┐' },
+    { type: 'output', text: '  │ Price: $198.42  Change: +1.23 (+0.62%)  │' },
+    { type: 'output', text: '  │ RSI: 58.4  Trend: BULLISH  MACD: ▲     │' },
+    { type: 'output', text: '  │ Support: $192.10  Resistance: $205.50   │' },
+    { type: 'output', text: '  │ Signal: CAUTION — near resistance zone  │' },
+    { type: 'output', text: '  └──────────────────────────────────────────┘' },
+    { type: 'empty' },
+    { type: 'prompt', text: '❯/ /analyze BTC-USD 1d' },
+    { type: 'warn', text: '  ⏳ Fetching data from provider chain...' },
+    { type: 'success', text: '  ✓ AI analysis complete. Trend: BULLISH. See details above.' },
+  ];
+
+  const container = document.getElementById('heroTerminal');
+  let i = 0;
+
+  function addLine() {
+    if (i >= lines.length) return;
+    const line = lines[i];
+    const el = document.createElement('div');
+    el.className = 'terminal-line';
+    el.style.animationDelay = '0s';
+
+    if (line.type === 'empty') {
+      el.innerHTML = '&nbsp;';
+    } else if (line.type === 'prompt') {
+      el.innerHTML = '<span class="prompt">' + escHtml(line.text.substring(0, 2)) + '</span><span class="cmd">' + escHtml(line.text.substring(2)) + '</span>';
+    } else if (line.type === 'output') {
+      el.innerHTML = '<span class="output">' + escHtml(line.text) + '</span>';
+    } else if (line.type === 'success') {
+      el.innerHTML = '<span class="success">' + escHtml(line.text) + '</span>';
+    } else if (line.type === 'warn') {
+      el.innerHTML = '<span class="warn">' + escHtml(line.text) + '</span>';
+    }
+
+    container.appendChild(el);
+    i++;
+    setTimeout(addLine, line.type === 'prompt' ? 800 : 200);
+  }
+
+  // Start when hero is visible
+  const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      setTimeout(addLine, 500);
+      observer.disconnect();
+    }
+  }, { threshold: 0.3 });
+  observer.observe(document.querySelector('.hero-terminal'));
+})();
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─── Interactive Demo Terminal ───────────────────────────
+(function demoTerminal() {
+  const input = document.getElementById('demoInput');
+  const output = document.getElementById('demoOutput');
+
+  const commands = {
+    '/help': [
+      '┌─ FinCLI Commands ─────────────────────────────┐',
+      '│ /help         Show this help                   │',
+      '│ /dashboard    Compact overview                 │',
+      '│ /market       Market overview for a symbol     │',
+      '│ /technical    Technical analysis + signals      │',
+      '│ /mtf          Multi-timeframe alignment        │',
+      '│ /structure    Market structure analysis         │',
+      '│ /news         News desk                        │',
+      '│ /funda        Fundamental snapshot              │',
+      '│ /ai           AI chat with market context       │',
+      '│ /analyze      Full AI-powered analysis          │',
+      '│ /web          Web research                      │',
+      '│ /portfolio    Portfolio view                    │',
+      '│ /watchlist    Watchlist management               │',
+      '│ /scan         Watchlist scanner                 │',
+      '│ /journal      Trading journal                   │',
+      '│ /agent        AI agents (37 frameworks)         │',
+      '│ /connector    Data connector catalog            │',
+      '│ /alert        Price alerts                      │',
+      '│ /calendar     Economic calendar                 │',
+      '│ /backtest     Lightweight backtesting           │',
+      '│ /provider     Provider management               │',
+      '│ /ai_model     AI provider selector              │',
+      '│ /news_model   Market provider selector          │',
+      '│ /doctor       Environment diagnostics           │',
+      '│ /config       Show configuration                │',
+      '│ /history      Session history                   │',
+      '│ /clear        Clear screen                      │',
+      '│ /exit         Exit FinCLI                       │',
+      '└────────────────────────────────────────────────┘',
+    ],
+    '/dashboard': [
+      '┌─ FinCLI Dashboard ────────────────────────────────────┐',
+      '│ Area           │ Summary               │ Next Action  │',
+      '├────────────────┼───────────────────────┼──────────────┤',
+      '│ Provider Chain │ yfinance              │ /provider    │',
+      '│ Watchlist      │ 3 symbol(s)           │ /scan        │',
+      '│ Portfolio      │ $12,450.00            │ /portfolio   │',
+      '│ Journal        │ 5 entries | WR: 0.60  │ /journal     │',
+      '│ Market         │ Use /market AAPL 1d   │ /market      │',
+      '└────────────────┴───────────────────────┴──────────────┘',
+    ],
+    '/market': [
+      '┌─ AAPL — Apple Inc. ────────────────────────────────┐',
+      '│ Data Quality: ★★★★☆ (Good)                        │',
+      '│                                                     │',
+      '│ Quote: $198.42 (+1.23, +0.62%)                     │',
+      '│ Provider: yfinance (delayed)                        │',
+      '│                                                     │',
+      '│ Technical:                                          │',
+      '│   RSI(14): 58.4     Trend: BULLISH                 │',
+      '│   MACD: 1.82 ▲     Signal: 1.45                    │',
+      '│   ATR: $3.21        Volume: 52.3M                  │',
+      '│                                                     │',
+      '│ Key Levels:                                         │',
+      '│   Support:    $192.10 │ $186.50                     │',
+      '│   Resistance: $205.50 │ $210.00                     │',
+      '│                                                     │',
+      '│ Structure: Higher Highs, Higher Lows                │',
+      '│ Signal: CAUTION — approaching resistance zone       │',
+      '│                                                     │',
+      '│ ⚠ Not financial advice. Verify independently.       │',
+      '└────────────────────────────────────────────────────┘',
+    ],
+    '/market aapl': null, // alias
+    '/market aapl 1d': null,
+    '/technical': [
+      '┌─ Technical Analysis: BTC-USD (1d) ─────────────────┐',
+      '│                                                      │',
+      '│ Trend Bias: BULLISH                                  │',
+      '│ RSI(14): 62.1 (neutral-bullish)                     │',
+      '│ MACD: 1245.3 ▲  Signal: 980.5                      │',
+      '│ BB: Price near upper band (caution)                  │',
+      '│ ATR: $1,850                                         │',
+      '│ Volume: Above 20-day average                         │',
+      '│                                                      │',
+      '│ Technical Debate:                                    │',
+      '│   🐂 Bull: Strong trend, MACD momentum, volume      │',
+      '│   🐻 Bear: RSI approaching overbought               │',
+      '│   ⚡ Caution: Near prior resistance at $72,000       │',
+      '│   ⚖ Judge: BEST TO BUY (confidence: 65%)            │',
+      '│                                                      │',
+      '│ Signal Score: 7.2/10                                 │',
+      '│ Invalidation: Below $64,200                          │',
+      '│                                                      │',
+      '│ ⚠ Not a guaranteed entry. Verify independently.      │',
+      '└─────────────────────────────────────────────────────┘',
+    ],
+    '/agent list': [
+      '┌─ AI Agents (37 frameworks) ────────────────────────┐',
+      '│                                                      │',
+      '│ TRADER:                                              │',
+      '│   wyckoff, smc, ict, swing, scalper, druckenmiller, │',
+      '│   soros, day_trader, position, momentum              │',
+      '│                                                      │',
+      '│ INVESTOR:                                            │',
+      '│   buffett, graham, lynch, munger, klarman, marks,   │',
+      '│   dalio, fisher, templeton, ackman                  │',
+      '│                                                      │',
+      '│ ECONOMIC:                                            │',
+      '│   fed_watcher, fx_macro, bond_analyst,              │',
+      '│   inflation_tracker, commodity_analyst              │',
+      '│                                                      │',
+      '│ GEOPOLITICS:                                         │',
+      '│   geopolitical_risk, emerging_markets,              │',
+      '│   energy_geopolitics                                │',
+      '│                                                      │',
+      '│ Use: /agent use <name> to activate                  │',
+      '└─────────────────────────────────────────────────────┘',
+    ],
+    '/portfolio': [
+      '┌─ Portfolio ────────────────────────────────────────┐',
+      '│ Symbol    │ Qty   │ Avg Price │ Current │ PnL     │',
+      '├───────────┼───────┼───────────┼─────────┼─────────┤',
+      '│ AAPL      │ 10    │ $185.00   │ $198.42 │ +$134.2 │',
+      '│ BTC-USD   │ 0.05  │ $65,000   │ $71,200 │ +$310.0 │',
+      '│ MSFT      │ 5     │ $420.00   │ $445.30 │ +$126.5 │',
+      '├───────────┴───────┴───────────┴─────────┴─────────┤',
+      '│ Total Value: $12,450.00  Unrealized PnL: +$570.70 │',
+      '└───────────────────────────────────────────────────┘',
+    ],
+    '/watchlist': [
+      '┌─ Watchlist (3 symbols) ───────────────────────────┐',
+      '│ AAPL     $198.42  +0.62%  RSI: 58.4  BULLISH     │',
+      '│ BTC-USD  $71,200  +2.10%  RSI: 62.1  BULLISH     │',
+      '│ EURUSD   $1.0842  -0.15%  RSI: 45.2  NEUTRAL     │',
+      '└──────────────────────────────────────────────────┘',
+    ],
+    '/doctor': [
+      '┌─ FinCLI Doctor ───────────────────────────────────┐',
+      '│ ✓ Python: 3.11.5                                  │',
+      '│ ✓ Textual: installed                              │',
+      '│ ✓ SQLite: ~/.fincli/fincli.db (healthy)           │',
+      '│ ✓ Config: ~/.fincli/config.json (valid)           │',
+      '│ ✓ Market: yfinance (active, delayed)              │',
+      '│ ○ AI: no key configured                           │',
+      '│ ✓ Cache: 42 entries (3.2 MB)                      │',
+      '│ ✓ npm: @drico2008/fincli (linked)                 │',
+      '└──────────────────────────────────────────────────┘',
+    ],
+    '/clear': 'CLEAR',
+    '/exit': ['👋 Goodbye! This is a web demo — in real FinCLI, this exits the TUI.'],
+  };
+
+  // Aliases
+  commands['/market aapl'] = commands['/market'];
+  commands['/market aapl 1d'] = commands['/market'];
+
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      const cmd = input.value.trim().toLowerCase();
+      if (!cmd) return;
+
+      // Echo command
+      addOutput('❯/ ' + input.value.trim(), 'var(--accent-cyan)');
+      input.value = '';
+
+      if (cmd === '/clear') {
+        output.innerHTML = '';
+        addOutput('Screen cleared.', 'var(--text-muted)');
+        return;
+      }
+
+      // Find matching command
+      let result = null;
+      if (commands[cmd]) {
+        result = commands[cmd];
+      } else {
+        // Partial match
+        for (const key in commands) {
+          if (cmd.startsWith(key.split(' ')[0]) && commands[key]) {
+            result = commands[key];
+            break;
+          }
+        }
+      }
+
+      if (result) {
+        addOutput('');
+        result.forEach(line => addOutput(line, 'var(--text-gray)'));
+        addOutput('');
+      } else if (cmd.startsWith('/')) {
+        addOutput('Command recognized but no demo output available.', 'var(--text-muted)');
+        addOutput('Install FinCLI to use all features: pipx install fincli', 'var(--text-dim)');
+        addOutput('');
+      } else {
+        // AI chat simulation
+        addOutput('');
+        addOutput('> Thinking: routing prompt to active AI provider...', 'var(--accent-amber)');
+        addOutput('* Provider: demo (web simulation)', 'var(--text-muted)');
+        addOutput('');
+        addOutput('I\'m the FinCLI web demo. In the real terminal, your message would', 'var(--text-gray)');
+        addOutput('be sent to the active AI provider (OpenAI, Gemini, Groq, etc.)', 'var(--text-gray)');
+        addOutput('with optional market context and web research.', 'var(--text-gray)');
+        addOutput('');
+        addOutput('Install FinCLI to try: pipx install fincli', 'var(--text-dim)');
+        addOutput('');
+      }
+
+      // Scroll to bottom
+      output.scrollTop = output.scrollHeight;
+    }
+  });
+
+  function addOutput(text, color) {
+    const el = document.createElement('div');
+    el.className = 'output-line';
+    if (color) el.style.color = color;
+    el.textContent = text || '\u00A0';
+    output.appendChild(el);
+  }
+})();
+
+// ─── Command Category Toggle ─────────────────────────────
+function toggleCmd(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+// ─── FAQ Toggle ──────────────────────────────────────────
+function toggleFaq(el) {
+  el.closest('.faq-item').classList.toggle('open');
+}
+
+// ─── Tab Switcher ────────────────────────────────────────
+function switchTab(panelId, btn) {
+  const container = btn.closest('.section') || btn.closest('section');
+  container.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  container.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(panelId).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ─── Copy Code ───────────────────────────────────────────
+function copyCode(btn) {
+  const block = btn.parentElement;
+  const lines = block.querySelectorAll('.line-cmd');
+  const text = Array.from(lines).map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'COPIED';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'COPY';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// ─── Scroll Reveal ───────────────────────────────────────
+(function scrollReveal() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+})();
+
+// ─── Back to Top ─────────────────────────────────────────
+window.addEventListener('scroll', function() {
+  const btn = document.getElementById('backToTop');
+  if (window.scrollY > 500) {
+    btn.classList.add('show');
+  } else {
+    btn.classList.remove('show');
+  }
+});
+
+// ─── Active Nav Link ─────────────────────────────────────
+window.addEventListener('scroll', function() {
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  let current = '';
+
+  sections.forEach(section => {
+    const top = section.offsetTop - 100;
+    if (window.scrollY >= top) {
+      current = section.getAttribute('id');
+    }
+  });
+
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) {
+      link.classList.add('active');
+    }
+  });
+});
+</script>
+
+</body>
+</html>
