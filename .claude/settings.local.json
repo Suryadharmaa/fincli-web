@@ -3,5 +3,8 @@
     "allow": [
       "Bash(node --check js/app.js)"
     ]
+  },
+  "enabledPlugins": {
+    "figma@claude-plugins-official": false
   }
 }

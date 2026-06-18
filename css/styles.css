@@ -162,6 +162,24 @@ code{font-family:var(--mono)}
 .cursor{display:inline-block;width:9px;height:1.05em;background:var(--green);
   vertical-align:-2px;animation:blink 1s steps(1) infinite;margin-left:2px}
 @keyframes blink{50%{opacity:0}}
+.term-body .clear-fade{animation:termFade .3s ease}
+@keyframes termFade{from{opacity:1}to{opacity:0}}
+
+/* terminal input bar */
+.term-input{
+  display:flex;align-items:center;gap:0;
+  padding:10px 18px;border-top:1px solid var(--border);
+  background:rgba(8,12,18,.6);font-family:var(--mono);font-size:.85rem;
+}
+.term-input .prompt{color:var(--green);flex-shrink:0}
+.term-input input{
+  flex:1;background:transparent;border:none;outline:none;
+  font-family:var(--mono);font-size:.85rem;color:var(--text);
+  caret-color:var(--green);padding:0;
+}
+.term-input input::placeholder{color:var(--faint);opacity:.6}
+.terminal.focused{border-color:rgba(0,230,118,.35);box-shadow:0 0 24px -6px rgba(0,230,118,.15)}
+
 
 .scroll-hint{
   position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
@@ -196,9 +214,15 @@ code{font-family:var(--mono)}
 .card:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
 .card:hover::before{opacity:1}
 .card .ico{font-size:1.5rem;width:48px;height:48px;display:grid;place-items:center;
-  background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);border-radius:12px;margin-bottom:16px}
+  background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);border-radius:12px;margin-bottom:16px;
+  transition:transform .3s,box-shadow .3s}
+.card:hover .ico{transform:scale(1.1);box-shadow:0 0 20px rgba(0,230,118,.2)}
 .card h3{font-size:1.12rem;margin-bottom:8px}
 .card p{color:var(--muted);font-size:.93rem}
+
+/* ---------- feature stagger ---------- */
+.card.stagger{opacity:0;transform:translateY(30px) scale(.97);transition:opacity .5s ease,transform .5s ease}
+.card.stagger.in{opacity:1;transform:translateY(0) scale(1)}
 
 /* ---------- tabs / code ---------- */
 .tabs{max-width:760px;margin:0 auto}
@@ -233,6 +257,14 @@ code{font-family:var(--mono)}
 .cmd-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px;
   transition:transform .3s,border-color .3s}
 .cmd-card:hover{transform:translateY(-4px);border-color:var(--border-2)}
+
+/* command ripple */
+.cmd{position:relative;overflow:hidden}
+.cmd .ripple{
+  position:absolute;border-radius:50%;background:rgba(0,230,118,.2);
+  transform:scale(0);animation:rippleOut .5s ease-out forwards;pointer-events:none;
+}
+@keyframes rippleOut{to{transform:scale(2.5);opacity:0}}
 .cmd-card h3{font-size:.78rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--cyan);margin-bottom:14px;font-family:var(--mono)}
 .cmd{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:.86rem;
   padding:7px 10px;border-radius:8px;cursor:pointer;transition:.18s;color:var(--text)}
@@ -250,10 +282,23 @@ code{font-family:var(--mono)}
 .rstep .rt{font-weight:700;font-size:1rem;margin-bottom:6px}
 .rstep .rd{color:var(--muted);font-size:.82rem}
 
-/* ---------- timeline ---------- */
+/* research step sequential reveal */
+.rstep.seq{opacity:0;transform:translateY(20px);transition:opacity .4s ease,transform .4s ease}
+.rstep.seq.in{opacity:1;transform:none}
+
+/* roadmap progress bar */
 .timeline{position:relative;max-width:760px;margin:0 auto;padding-left:30px}
-.timeline::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;
-  background:linear-gradient(var(--green),var(--cyan),transparent)}
+.timeline .progress-track{
+  position:absolute;left:6px;top:6px;bottom:6px;width:2px;
+  background:var(--border);border-radius:2px;overflow:hidden;
+}
+.timeline .progress-fill{
+  position:absolute;top:0;left:0;width:100%;height:0%;
+  background:linear-gradient(var(--green),var(--cyan));
+  transition:height .1s linear;border-radius:2px;
+}
+
+/* ---------- timeline ---------- */
 .tl-item{position:relative;margin-bottom:34px}
 .tl-item::before{content:"";position:absolute;left:-30px;top:5px;width:14px;height:14px;border-radius:50%;
   background:var(--bg);border:2px solid var(--green);box-shadow:0 0 0 4px rgba(0,230,118,.12)}
@@ -281,6 +326,9 @@ code{font-family:var(--mono)}
   opacity:0;pointer-events:none;transition:opacity .3s,transform .2s}
 .to-top.show{opacity:1;pointer-events:auto}
 .to-top:hover{transform:translateY(-3px)}
+
+/* ---------- trading / backtest grids ---------- */
+.trading-grid,.backtest-grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
 
 /* ---------- reveal animation ---------- */
 .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}

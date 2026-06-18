@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FinCLI</title>
-<meta name="description" content="FinCLI is a modern financial CLI/TUI terminal for market research, technical analysis, AI-assisted analysis, portfolio risk, journaling, watchlists, and local-first financial workflows.">
-<meta name="keywords" content="FinCLI, financial terminal, CLI, TUI, market research, technical analysis, AI trading, portfolio risk">
+<meta name="description" content="FinCLI is a production-ready financial CLI/TUI terminal for market research, technical analysis, AI-assisted analysis, provider management, portfolio risk, journaling, watchlists, backtesting, paper trading, and local-first financial workflows.">
+<meta name="keywords" content="FinCLI, financial terminal, CLI, TUI, market research, technical analysis, AI trading, portfolio risk, backtesting, paper trading, algo trading">
 <meta name="theme-color" content="#06080c">
-<meta property="og:title" content="FinCLI — Modern Financial Terminal">
-<meta property="og:description" content="Local-first financial CLI/TUI for research, technical analysis, AI-assisted insight, and portfolio risk.">
+<meta property="og:title" content="FinCLI — Production-Ready Financial Terminal">
+<meta property="og:description" content="Local-first financial CLI/TUI for research, technical analysis, AI-assisted insight, portfolio risk, backtesting, and paper trading.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="img/fincli_logo.png">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2306080c'/><text x='4' y='24' font-family='monospace' font-size='20' fill='%2300e676'>&gt;_</text></svg>">
@@ -29,13 +29,15 @@
   <a href="#top" class="brand">
     <span class="brand-mark">&gt;_</span>
     <span class="brand-name">FinCLI</span>
-    <span class="brand-ver">v0.4.0</span>
+    <span class="brand-ver">v1.0.0</span>
   </a>
   <nav class="nav-links" id="navLinks">
     <a href="#features">Features</a>
     <a href="#install">Install</a>
     <a href="#commands">Commands</a>
     <a href="#research">Research</a>
+    <a href="#trading">Trading</a>
+    <a href="#backtesting">Backtesting</a>
     <a href="#roadmap">Roadmap</a>
     <a class="nav-cta" href="https://www.npmjs.com/package/@drico2008/fincli" target="_blank" rel="noopener">npm&nbsp;↗</a>
   </nav>
@@ -46,26 +48,30 @@
 <section class="hero" id="top">
   <div class="hero-inner">
     <div class="hero-text">
-      <span class="badge reveal"><span class="pulse"></span> Active MVP · Local-first</span>
+      <span class="badge reveal"><span class="pulse"></span> v1.0.0 Stable · Production-ready</span>
       <h1 class="reveal">The financial terminal<br><span class="grad">that lives in your shell</span></h1>
-      <p class="lead reveal">Market research, technical analysis, AI-assisted insight, portfolio risk, journaling, and watchlists — from one fast, provider-aware, local-first CLI/TUI.</p>
+      <p class="lead reveal">Research engine v3, portfolio risk, trading safety layer, backtesting, paper trading, alert daemon, realtime streaming, and 8 AI providers — all local-first, provider-aware, and grounded.</p>
       <div class="hero-cta reveal">
         <a href="#install" class="btn btn-primary">Get Started</a>
         <a href="#commands" class="btn btn-ghost">Explore Commands</a>
       </div>
       <div class="hero-stats reveal">
+        <div class="stat"><span class="num" data-target="456" data-suffix="">0</span><span class="label">Tests passing</span></div>
         <div class="stat"><span class="num" data-target="100" data-suffix="+">0</span><span class="label">News connectors</span></div>
         <div class="stat"><span class="num" data-target="8" data-suffix="">0</span><span class="label">AI providers</span></div>
-        <div class="stat"><span class="num" data-target="37" data-suffix="">0</span><span class="label">AI agents</span></div>
       </div>
     </div>
 
     <div class="terminal reveal" id="terminal">
       <div class="term-bar">
         <span class="tdot red"></span><span class="tdot yellow"></span><span class="tdot green"></span>
-        <span class="term-title">fincli — /research</span>
+        <span class="term-title" id="termTitle">fincli — live demo</span>
       </div>
       <div class="term-body" id="termBody"></div>
+      <div class="term-input" id="termInput">
+        <span class="prompt">&gt;&nbsp;</span>
+        <input type="text" id="termField" placeholder="type /help for commands" autocomplete="off" spellcheck="false" aria-label="Type a FinCLI command">
+      </div>
     </div>
   </div>
   <a href="#features" class="scroll-hint" aria-label="Scroll to features">▼</a>
@@ -129,15 +135,35 @@ fincli</code></pre>
 <!-- research -->
 <section class="section alt" id="research">
   <div class="section-head reveal">
-    <span class="kicker">// research engine v2</span>
+    <span class="kicker">// research engine v3</span>
     <h2>One command, a complete picture</h2>
-    <p><code>/research</code> returns a compact, decision-ready output. Deep mode sends a concise prompt to your active AI provider; report mode adds export-ready notes.</p>
+    <p><code>/research</code> returns a compact, source-aware output with Snapshot, Signal, Risk, Context Blend, Trust Gate, Source Quality, Decision Points, and cited Sources. Modes: <code>--snapshot</code>, <code>--deep</code>, <code>--report</code>.</p>
   </div>
   <div class="research-flow" id="researchFlow"></div>
 </section>
 
+<!-- trading -->
+<section class="section alt" id="trading">
+  <div class="section-head reveal">
+    <span class="kicker">// trading safety layer</span>
+    <h2>Trade with guardrails</h2>
+    <p>Risk guard with max position size, daily loss limit, kill switch, and leverage warning. Paper trading engine with stop-limit orders, cancel, positions aggregation, and daily PnL. Immutable order audit log — never UPDATE, never DELETE.</p>
+  </div>
+  <div class="grid features trading-grid" id="tradingGrid"></div>
+</section>
+
+<!-- backtesting -->
+<section class="section" id="backtesting">
+  <div class="section-head reveal">
+    <span class="kicker">// backtesting & portfolio analytics</span>
+    <h2>Test before you commit</h2>
+    <p>Professional backtesting with fees, slippage, spread modeling, walk-forward split, position sizing, 5 strategies, Sharpe/Sortino/Calmar ratios, and Monte Carlo robustness. Portfolio time-series snapshots, rebalancing suggestions, and benchmark comparison.</p>
+  </div>
+  <div class="grid features backtest-grid" id="backtestGrid"></div>
+</section>
+
 <!-- roadmap -->
-<section class="section" id="roadmap">
+<section class="section alt" id="roadmap">
   <div class="section-head reveal">
     <span class="kicker">// roadmap</span>
     <h2>Where FinCLI is heading</h2>
@@ -148,7 +174,7 @@ fincli</code></pre>
 <!-- cta -->
 <section class="cta-band reveal">
   <h2>Stop tab-switching. Start researching.</h2>
-  <p>Local-first · Provider-aware · AI-grounded · MIT licensed</p>
+  <p>v1.0.0 · Local-first · Provider-aware · AI-grounded · MIT licensed</p>
   <a href="#install" class="btn btn-primary lg">Install FinCLI</a>
 </section>
 
@@ -156,9 +182,9 @@ fincli</code></pre>
   <div class="footer-inner">
     <div class="footer-brand">
       <span class="brand-mark">&gt;_</span>
-      <strong>FinCLI</strong> <span class="muted">v0.4.0 · MIT</span>
+      <strong>FinCLI</strong> <span class="muted">v1.0.0 · MIT</span>
     </div>
-    <p class="disclaimer">AI output is informational and must not be treated as guaranteed signal or financial advice. yfinance is a delayed fallback, not realtime. Public RSS/news sources can change or fail without notice.</p>
+    <p class="disclaimer">AI output is informational and must not be treated as guaranteed signal or financial advice. yfinance is a delayed fallback, not realtime. Public RSS/news sources can change or fail without notice. Data quality depends on provider availability, API keys, provider plan entitlement, exchange coverage, and rate limits.</p>
   </div>
 </footer>
 
