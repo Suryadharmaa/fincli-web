@@ -1,7 +1,5 @@
 # FinCLI v1.0.0
 
-[![CI](https://github.com/drico2008/fincli/actions/workflows/ci.yml/badge.svg)](https://github.com/drico2008/fincli/actions/workflows/ci.yml)
-
 FinCLI is a production-ready financial CLI/TUI terminal for market research, technical analysis, AI-assisted analysis, provider management, portfolio risk, journaling, watchlists, backtesting, paper trading, and local-first financial workflows.
 
 Data quality depends on provider availability, API keys, provider plan entitlement, exchange coverage, and rate limits. yfinance remains the default delayed fallback.
