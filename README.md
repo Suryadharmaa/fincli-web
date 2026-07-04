@@ -1,293 +1,419 @@
-# FinCLI v1.0.0
+# FinCLI v1.8.3
 
-FinCLI is a production-ready financial CLI/TUI terminal for market research, technical analysis, AI-assisted analysis, provider management, portfolio risk, journaling, watchlists, backtesting, paper trading, and local-first financial workflows.
+[![npm version](https://img.shields.io/npm/v/@drico2008/fincli)](https://www.npmjs.com/package/@drico2008/fincli)
+[![npm downloads](https://img.shields.io/npm/dm/@drico2008/fincli?label=downloads%2Fmonth)](https://www.npmjs.com/package/@drico2008/fincli)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+![Python](https://img.shields.io/badge/Python-3.11+-blue)
+![Node](https://img.shields.io/badge/Node.js-18+-green)
+[![Socket Badge](https://badge.socket.dev/npm/package/@drico2008/fincli/1.0.5)](https://badge.socket.dev/npm/package/@drico2008/fincli/1.0.5)
 
-Data quality depends on provider availability, API keys, provider plan entitlement, exchange coverage, and rate limits. yfinance remains the default delayed fallback.
+**A terminal-native financial workstation. Research, trade, and analyze markets without leaving your shell.**
 
-## Highlights
+![FinCLI startup dashboard](img/image.png)
 
-- Textual + Rich terminal UI with slash commands.
-- Research-first workflow through `/research`, now powered by Research Engine v3 (snapshot/deep/report, cited sources, sector/macro/news blending, web fallback).
-- Provider fallback chain with granular reliability labels: `ok`, `auth_failed`, `rate_limited`, `entitlement_missing`, `partial_data`, `delayed`, `fallback`, `schedule_only`, `unavailable`, `circuit_open`.
-- Source quality and freshness scoring (`freshness_score`, source grade A–E) surfaced in `/research` and `/market`.
-- Command capability matrix exposed via `/provider capabilities`, showing which data each command needs.
-- Provider metrics dashboard with runtime success rate, average latency, fallback count, and error count.
-- Persistent provider metrics in SQLite so `/provider metrics` can show current session and all-time call totals.
-- AI Grounding Guard for `/analyze` and `/research`: AI prompts must consider data quality, provider reliability, missing data, cited sources, and provider metrics before conclusions.
-- Market data adapters: yfinance, Finnhub, Twelve Data, Alpha Vantage, and custom provider schema.
-- 100+ news connector catalog with free RSS fallbacks and API-key-ready providers.
-- AI providers: OpenRouter, OpenAI, Groq, Together, HuggingFace, Gemini, Anthropic, and compatible HTTP providers.
-- Technical analysis: RSI, MACD, EMA/SMA, Bollinger Bands, ATR, support/resistance, market structure, and technical debate.
-- Portfolio Risk v3: exposure by asset class/currency, concentration risk, drawdown estimate, risk budget, realized/unrealized PnL, and portfolio health score.
-- Trading Safety Layer: risk guard (max position size, daily loss limit, kill switch, leverage warning), immutable audit log, paper trading with stop-limit orders, 3 built-in algo strategies (sma_cross, rsi_reversion, momentum).
-- Broker sandbox adapters: Alpaca paper (full HTTP), Tradier sandbox (full HTTP), IBKR (gateway scaffold). 16 broker catalog entries.
-- Realtime streaming: Kraken WebSocket, HyperLiquid WebSocket, Equity polling feed — all configurable adapters with `websockets` library.
-- Professional backtesting: fees/slippage/spread modeling, walk-forward split, position sizing (fixed fractional + Kelly), 5 strategies (sma_cross, rsi_reversion, momentum, bollinger, multi_factor), Sharpe/Sortino/Calmar ratios, Monte Carlo robustness, export (md/json/csv).
-- Portfolio analytics: time-series snapshots, Sharpe/Sortino/Calmar ratios, rebalancing suggestions, benchmark comparison (vs SPY/QQQ/BTC), what-if analysis.
-- Alert daemon: background checking, conditional alerts (RSI, volume, MACD cross), alert history, notification hooks.
-- Unified export: batch export all data (portfolio, journal, alerts, trades) to CSV/JSON.
-- Local-first storage: config, secrets, SQLite database, cache, sessions, watchlist, portfolio, journal, alerts, audit log, portfolio snapshots.
-- Prepublish safety checks for secrets, runtime artifacts, and npm package manifest.
+---
+
+## Why FinCLI
+
+- **Trade from the terminal** — Live broker integration (Alpaca + Binance) with risk guard, kill switch, and immutable audit log. Not just a data viewer.
+- **AI that knows your data** — The assistant is grounded in your provider's actual data quality, reliability scores, and missing data gaps. No hallucinated prices.
+- **Research Engine v3** — Snapshot, deep analysis, or full report with cited sources, sector/macro/news blending, and trust scoring — all from `/research AAPL`.
+- **Local-first, no cloud lock-in** — SQLite, encrypted secrets at rest, session recovery. Your data stays on your machine.
+
+> ⚠️ AI output is informational only, not financial advice. Data quality depends on your provider and API plan.
+
+---
 
 ## Install
 
-Local development:
+```bash
+npm install -g @drico2008/fincli
+fincli setup
+fincli
+```
+
+Requires Python 3.11+ and Node.js 18+. See [Prerequisites](#prerequisites) if you need to install them.
+
+---
+
+## Quick Start
+
+```text
+/research AAPL --deep          # AI-powered deep analysis with cited sources
+/chart AAPL 1d --overlay rsi,macd  # ASCII candlestick with indicators
+/scan sp500 rsi<30             # Screen S&P 500 for oversold stocks
+/portfolio add AAPL 10 185     # Track a position
+/trading live connect alpaca paper  # Connect to Alpaca paper trading
+```
+
+---
+
+## What You Can Do
+
+### Research & Analysis
+```text
+/research AAPL [--snapshot|--deep|--report] [--export md|json path]
+/market AAPL 1d          # Quote + news + technical summary
+/technical AAPL 1d       # RSI, MACD, EMA/SMA, Bollinger, ATR
+/mtf AAPL 1d,1h,15m      # Multi-timeframe analysis
+/chart AAPL 1d [--overlay rsi,macd] [--width 80] [--height 20]
+/news AAPL               # 100+ news sources, free RSS fallback
+/calendar week US high   # Economic calendar
+```
+
+Research Engine v3 returns: Snapshot → Signal → Risk → Context (sector + macro + news) → Trust Gate → Sources → Summary.
+
+---
+
+### Portfolio & Risk
+```text
+/portfolio                          # Overview
+/portfolio add AAPL 10 185          # Add position
+/portfolio update AAPL 5 160        # DCA update
+/portfolio risk                     # Exposure, concentration, drawdown, PnL, health score, VaR
+/portfolio correlation              # Pairwise correlation matrix between holdings
+/portfolio tax                      # Realized PnL summary for tax reporting
+/portfolio benchmark SPY            # Benchmark comparison
+/portfolio rebalance                # Equal-weight suggestions
+/portfolio create crypto            # Multiple named portfolios
+/portfolio switch crypto
+/portfolio compare main
+/portfolio history                  # Snapshot history
+```
+
+Portfolio Risk v3 calculates: asset class exposure, currency exposure, concentration risk, drawdown estimate, risk budget, realized/unrealized PnL, portfolio health score, VaR (historical + parametric).
+
+---
+
+### Live Trading
+```text
+/trading live connect alpaca paper  # Connect broker (paper mode)
+/trading live connect alpaca live   # Connect broker (live mode)
+/trading live buy AAPL 10 --confirm # Place order (confirmation required)
+/trading live sell AAPL 5 --confirm
+/trading live positions             # Broker positions
+/trading live orders                # Order history
+/trading live account               # Account info
+/trading kill                       # Emergency stop — blocks all orders immediately
+/trading resume
+/trading audit                      # Immutable order audit log
+```
+
+Supported brokers: **Alpaca** (US equities, paper + live), **Binance** (crypto, testnet + live).
+
+Safety defaults: 20% max position size, 5% daily loss limit, no leverage in paper mode, auto-disconnect on suspicious activity.
+
+---
+
+### Screener & Alerts
+```text
+/scan sp500 rsi<30 --limit 20       # Scan universe with filter
+/scan nasdaq sma_cross              # Golden cross scan
+/scan crypto below_resistance
+/scan watchlist rsi<30              # Scan your watchlist
+/watchlist add AAPL [group] [notes]
+/watchlist list <group>
+/alert add AAPL above 200           # Price alert
+/notification add discord alerts <webhook_url>
+/notification add telegram alerts <bot_token> <chat_id>
+```
+
+Universes: `sp500`, `nasdaq`, `crypto`, `forex`, `commodities`.
+Filters: `rsi<30`, `sma_cross`, `sma_death`, `above_support`, `below_resistance`, and expression-based filters.
+
+---
+
+### Favourites & Quick Access
+```text
+/favourites                         # Show most-used symbols
+/favourites add AAPL                # Add to favourites
+/favourites remove AAPL             # Remove from favourites
+```
+
+Favourites are tracked by usage count — most-used symbols appear first.
+
+---
+
+### Command Aliases
+```text
+/p  → /portfolio    /t  → /technical    /r  → /research
+/b  → /backtest     /w  → /watchlist    /j  → /journal
+/m  → /market       /n  → /news         /a  → /alert
+/s  → /scan
+```
+
+---
+
+### AI Assistant
+```text
+/ai What is RSI?
+/ai How do I use /backtest?
+/ai_model                           # Interactive provider/model picker
+```
+
+Context-aware with token-based sliding window (4k tokens). Grounded in provider data quality, reliability scores, and missing data — so it won't confidently cite stale or unavailable data. Response caching (30-min TTL). Refuses programming questions by design.
+
+Supported AI providers: OpenRouter, OpenAI, Groq, Together, HuggingFace, Gemini, Anthropic.
+
+---
+
+### Backtesting & Journal
+```text
+/backtest AAPL sma_cross 1y        # Backtest a strategy
+/backtest AAPL sma_cross 1y --fast 10 --slow 30  # Custom parameters
+/backtest compare AAPL sma_cross,rsi_reversion,macd_divergence  # Compare strategies
+/journal add AAPL bullish "setup"  # Log a trade idea
+/journal stats
+/journal review
+/export journal csv journal.csv
+/export portfolio json portfolio.json
+/export all json ./exports
+```
+
+Backtesting includes: fees/slippage, walk-forward, position sizing, Monte Carlo, ASCII equity curve, export.
+Strategies: sma_cross, rsi_reversion, momentum, bollinger_squeeze, macd_divergence, volume_breakout, mean_reversion, multi_factor.
+
+---
+
+### Providers
+```text
+/provider status                    # Provider health overview
+/provider metrics                   # Per-operation breakdown
+/provider capabilities              # Formal capability declarations
+/provider reset <provider>          # Manual circuit breaker reset
+/provider key status
+/provider key rotate <provider>
+/provider test AAPL
+/provider compare AAPL              # Compare all providers for same symbol
+/news_model                         # Interactive market/news provider picker
+```
+
+Supported data providers: yfinance (delayed fallback), Finnhub, Twelve Data, Alpha Vantage, custom provider schema.
+
+Provider System v2 features: formal capability declarations, `ProviderResponse` envelope with quality scoring (0–100), per-operation metrics, circuit breaker with manual reset, proactive health warnings on latency/error rate spikes.
+
+Free API keys: [Groq](https://console.groq.com/) · [OpenRouter](https://openrouter.ai/) · [Finnhub](https://finnhub.io/) · [Twelve Data](https://twelvedata.com/) · [Alpha Vantage](https://www.alphavantage.co/)
+
+---
+
+### System & Security
+```text
+/doctor                             # Health check
+/doctor report                      # Diagnostic dump (no secrets)
+/security status
+/security scan                      # Token pattern scan
+/security encrypt-key alpaca        # Encrypt broker key (PBKDF2-SHA256)
+/security lockdown                  # Emergency secret wipe
+/security purge                     # Clear secrets, history, cache
+/theme list
+/theme ocean
+/theme create mytheme --base midnight
+/session save
+/session restore
+/plugin list
+/plugin validate
+/cache stats
+/cache clear
+/setup                              # Re-run first-run wizard
+```
+
+---
+
+## Local Storage
+
+```text
+~/.fincli/config.json
+~/.fincli/secrets.env        # Encrypted at rest (PBKDF2-SHA256)
+~/.fincli/fincli.db          # SQLite database
+~/.fincli/themes/
+~/.fincli/plugins/
+```
+
+---
+
+## Plugin System
+
+Plugins extend FinCLI with custom commands via manifest (`plugin.json`), lifecycle hooks (`on_startup`, `on_shutdown`, `on_command`), and a sandboxed public API (`FinCLIPluginAPI`).
+
+Blocked by default: `os`, `sys`, `subprocess`, `socket`, `exec()`, `eval()`, `open()`. All data access goes through the plugin API boundary.
+
+---
+
+## Prerequisites
+
+<details>
+<summary>Install Python 3.11+</summary>
+
+**Windows:** Download from [python.org/downloads](https://www.python.org/downloads/). Check "Add Python to PATH".
+
+**macOS:** `brew install python@3.12`
+
+**Linux (Ubuntu/Debian):** `sudo apt install python3.11 python3.11-venv python3-pip -y`
+
+**Linux (Fedora):** `sudo dnf install python3.11 python3-pip -y`
+
+**Linux (Arch):** `sudo pacman -S python python-pip`
+
+</details>
+
+<details>
+<summary>Install Node.js 18+</summary>
+
+**Windows/macOS:** Download LTS from [nodejs.org](https://nodejs.org/).
+
+**Linux (Ubuntu/Debian):**
+```bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install nodejs -y
+```
+
+</details>
+
+<details>
+<summary>Install from source (developers)</summary>
 
 ```bash
+git clone https://github.com/your-username/FinCLI-Renewed.git
+cd fincli
 python -m venv .venv
-.venv\Scripts\activate
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
 fincli
 ```
 
-Global npm wrapper:
+</details>
 
-```bash
-npm install -g @drico2008/fincli
-fincli
-```
+---
 
-The npm wrapper requires Python 3.11+ on the user machine. It creates an isolated `.npm-python` environment inside the installed package.
+## Changelog
 
-## API Key Setup
+### v1.8.3
+- Full codebase lint cleanup: 255 ruff errors → 0 across 80+ files
+- Fix 6 critical undefined names (`Any`, `BaseBroker`, `Console`, `io`) that would crash at runtime
+- Move 92 typing-only imports behind `TYPE_CHECKING` guard for faster startup
+- Add `strict=False` to 7 `zip()` calls for explicit behavior
+- Add `from None` to re-raises for proper exception chaining
+- Fix `APP_DIR` import path in `database.py` (was importing from wrong module)
+- Move `logger` assignments after imports in 3 files (PEP8 compliance)
+- Replace `websockets` availability check with `importlib.util.find_spec`
+- Remove unused variables and imports across codebase
+- Update all test version assertions
 
-Global users do not need to edit `.env`. Save keys from inside FinCLI:
+### v1.8.2
+- **Update notification**: npm users now see a banner when a new version is available
+- Checks npm registry once per day (24h cache in `~/.fincli/.update-check`)
+- Non-blocking — never delays app startup
+- Silent on network errors or CI environments
+- Zero new dependencies (uses Node.js built-in `https` module)
 
-```text
-/ai_model key groq <api_key>
-/ai_model key openrouter <api_key>
-/news_model key finnhub <api_key>
-/news_model key twelvedata <api_key>
-/news_model key alphavantage <api_key>
-```
+### v1.8.1
+- Fix `sqlite3` not imported in `router.py` (3 locations would crash on DB error)
+- Fix `t` loop variable shadowing `t()` translation function in 2 locations
+- Remove 10 unused imports in `router.py` (ThemePreset, CrashContext, MODEL_CATALOG, etc.)
+- Add `from None` to 4 re-raises in except blocks
+- Add `strict=False` to `zip()` call in backtest compare
+- Split 7 semicolon-oneline statements into proper multi-line
+- Run `ruff --fix` for import sorting
 
-Keys are stored locally in:
+### v1.8.0
+- **Strategy Backtesting v2**: 4 new strategies (bollinger_squeeze, macd_divergence, volume_breakout, mean_reversion)
+- Custom strategy parameters: `/backtest AAPL sma_cross 1y --fast 10 --slow 30`
+- `/backtest compare` — compare multiple strategies on same symbol
+- **Portfolio Analytics v2**: VaR (Value at Risk) with historical + parametric methods
+- `/portfolio correlation` — pairwise correlation matrix between holdings
+- `/portfolio tax` — realized PnL summary for tax reporting
+- **New providers**: Polygon.io and IEX Cloud market data providers
+- `/provider compare` — test same symbol across all providers, show latency/quality
+- **Command aliases**: `/p`, `/t`, `/r`, `/b`, `/w`, `/j`, `/m`, `/n`, `/a`, `/s`
+- `/favourites` — quick access to most-used symbols (tracked by usage count)
+- Remove deprecated commands: `/security encrypt-key`, `/security decrypt-key`, `/trading algo`, `/provider insider`, `/provider ipo`
+- Code quality: ruff and mypy configuration added
+- Fix remaining Indonesian strings in router (~30 strings)
 
-```text
-~/.fincli/secrets.env
-```
+### v1.7.0
+- Complete Indonesian → English translation (250+ strings across 20+ files)
+- SQLite WAL mode for better concurrent read performance
+- API key rotation: `/secrets age` and `/secrets rotate <KEY>` commands
+- Key age warnings in `/security status` (alerts when keys > 90 days old)
+- Dependency audit: `pip-audit` integrated into prepublish check
+- Property-based testing with Hypothesis (crypto, formatting)
+- Test infrastructure: `@pytest.mark.integration` and `@pytest.mark.slow` markers
+- Add `hypothesis` dev dependency
 
-FinCLI masks keys in terminal output. Use `/secrets status`, `/secrets clear`, `/privacy status`, and `/privacy purge` for local security hygiene.
+### v1.6.0
+- Ollama local LLM support (offline AI, no API key needed)
+- Deprecate dead features: `/provider insider`, `/provider ipo`, `/security encrypt-key`, `/security decrypt-key`, `/trading algo`
+- Internationalization: `/lang` command for English/Indonesian switching
+- Security: path traversal fix in `/theme import/export`
+- Security: XML billion laughs protection (defusedxml)
+- Performance: fix O(n²) patterns in crypto, commands, exporter
+- Fix 13 swallowed exception blocks across codebase
+- Add timeouts to async future.result() calls
+- Thread safety: event loop lock in MarketDataService
+- Translate all Indonesian text to English (default language)
+- Add `defusedxml` dependency for safe XML parsing
 
-## Core Commands
+### v1.5.2
+- Full codebase bug audit: 10 bugs fixed (2 High, 4 Medium, 4 Low)
+- Binance: handle non-JSON error responses in API requests
+- AlertDaemon: persistent event loop instead of new loop per iteration
+- Binance: log price fetch errors instead of silent swallow
+- MarketDataService: persistent event loop for sync wrapper
+- Scan results: show error count summary for failed symbols
+- Stream callbacks: log errors instead of silent swallow
+- Kraken: expanded pair mappings (DOT, LINK, MATIC, AVAX)
 
-Research and market:
+### v1.5.1
+- Deep code review: 17 bug fixes across codebase
+- Fix operator precedence in provider error classification
+- Fix frozen dataclass mutability (lists → tuples)
+- Fix AlertDaemon silent exception swallowing
+- Fix RiskGuard net notional calculation (buy - sell)
+- Translate all remaining Indonesian text to English
+- Case-insensitive provider matching in news aggregator
+- Remove deleted `/quote` command from verb map
 
-```text
-/research AAPL
-/research AAPL --snapshot
-/research AAPL --deep
-/research AAPL --report
-/research AAPL --report --export md report.md
-/research AAPL --report --export json report.json
-/market AAPL 1d
-/news AAPL 7d
-/technical AAPL 1d
-/analyze AAPL 1d
-/mtf AAPL 1d,1h,15m
-/calendar week US high
-```
+### v1.5.0
+- WebSocket reconnect with exponential backoff + jitter
+- Config schema validation with "did you mean?" suggestions
+- Proactive provider health warnings (latency, error rate)
+- ASCII equity curve for backtest results
+- Memory optimization (session cleanup, 7-day retention)
 
-Providers:
+### v1.4.0
+- Universe-wide screener (sp500, nasdaq, crypto, forex, commodities)
+- Multi-portfolio support (create, switch, compare, delete)
+- Binance crypto broker integration (testnet + live)
+- Extended scan filters: `sma_cross`, `sma_death`, `above_support`, `below_resistance`
 
-```text
-/news_model
-/news_model list
-/news_model priority google_news_rss,yfinance,yahoo_finance_rss
-/provider status
-/provider metrics
-/provider list
-/provider capabilities
-/provider entitlement
-/provider key status
-/provider test AAPL
-```
+### v1.3.0
+- Terminal charting: ASCII candlestick with RSI/MACD overlays
+- AI context sliding window (token-based, 4k tokens)
+- Notification webhooks: Discord and Telegram
+- Interactive model picker for `/ai_model` and `/news_model`
 
-Portfolio and risk:
+### v1.2.0
+- Session state auto-save and crash recovery
+- Hash-based AI response cache (30-minute TTL)
+- Soft error detection (staleness, price anomalies)
+- Plugin sandbox hardening (import whitelist, code validation)
 
-```text
-/portfolio
-/portfolio add AAPL 10 185
-/portfolio performance
-/portfolio risk
-/tx add buy AAPL 10 185
-/tx add sell AAPL 5 195
-```
+### v1.1.0
+- Live trading with Alpaca (paper + live)
+- Broker key encryption (PBKDF2-SHA256)
+- Command consolidation (removed 6 duplicates)
+- `/portfolio rebalance` command
+- `/export broker` command
 
-Workflow:
+### v1.0.5
+- Research Engine v3
+- Provider System v2
+- Portfolio Risk v3
+- Trading Safety Layer
+- Plugin system
+- Theme system
 
-```text
-/watchlist add AAPL
-/scan watchlist rsi<30
-/journal add AAPL bullish "Breakout failed, wait for confirmation"
-/journal stats
-/journal review
-/alert add AAPL above 200
-/history
-/cache stats
-/cache clear
-```
-
-Security and release:
-
-```text
-/secrets status
-/privacy status
-npm run prepublish:safety
-python scripts/prepublish_check.py
-```
-
-## Research Engine v3
-
-`/research` is the central research command. It returns a compact, source-aware output:
-
-- Snapshot
-- Signal
-- Risk
-- Context (sector + macro + news blend)
-- Trust Gate
-- Missing Data
-- Source Quality (with freshness score and source grade)
-- Decision Points
-- Sources (cited market, news, macro, fundamentals, and web entries)
-- Final Summary
-
-Modes:
-
-- `--snapshot` (default): compact brief from available provider data.
-- `--deep`: sends a grounded Research Engine v3 prompt to the active AI provider, obeying the Data Trust Gate confidence cap.
-- `--report`: adds report-oriented notes and macro/source sections without creating another command surface.
-
-When provider news is missing, deep/report modes can fall back to public web research for current context. Exports (`--export md|json`) include the cited sources, macro context, and context blend.
-
-## Portfolio Risk v3
-
-`/portfolio risk` calculates:
-
-- Exposure by asset class
-- Currency exposure
-- Concentration risk
-- Drawdown estimate
-- Asset-class cap warning
-- Risk budget from `/profile`
-- Realized PnL
-- Unrealized PnL
-- Total PnL
-- Portfolio health score
-
-The health score is a local analytical score, not financial advice. It penalizes high concentration, missing prices, weak diversification, and drawdown.
-
-## Data Notes
-
-- yfinance is a delayed fallback and should not be described as realtime.
-- Finnhub, Twelve Data, Alpha Vantage, and other providers may require API keys, paid plans, and exchange entitlements.
-- Public RSS/news sources can change or fail without notice.
-- Calendar fallback may be `schedule_only` if actual provider data is unavailable.
-- AI output is informational and must not be treated as guaranteed signal or financial advice.
-
-## Local Storage
-
-FinCLI stores local data under:
-
-```text
-~/.fincli/config.json
-~/.fincli/secrets.env
-~/.fincli/fincli.db
-~/.fincli/fincli.log
-```
-
-Do not commit `.env`, local secrets, logs, databases, cache folders, or npm/python virtual environments.
-
-## Prepublish Safety
-
-Before publishing to npm or GitHub:
-
-```bash
-python -m pytest -q
-python -m compileall fincli tests scripts
-npm run check
-npm run prepublish:safety
-```
-
-The prepublish checker scans for `.env`, `secrets.env`, logs, SQLite databases, token-like strings, and unsafe `npm pack --dry-run` contents.
-
-## Roadmap
-
-### v0.3.x Hardening
-
-- Provider runtime metrics by provider started in `/provider metrics`.
-- Persistent provider metrics started in v0.3.0.
-- AI Grounding Guard started in `/analyze`.
-- Richer portfolio analytics: drawdown estimate and currency grouping started in Portfolio Risk v3.
-- Better research reports with Markdown/JSON export from `/research --report` started in v0.3.0.
-- Provider-specific schema validation for custom data APIs.
-- Improved AI grounding and citations for web/news-assisted answers.
-
-### v0.5.0 Provider/Data Reliability (done)
-
-- Standard `ProviderResult` envelope with granular statuses, including `delayed` and `fallback`.
-- Command capability matrix exposed via `/provider capabilities`.
-- Source quality and freshness scoring across `/research` and `/market`.
-- Persistent provider metrics across sessions.
-
-### v0.6.0 Research Engine v3 (done)
-
-- Snapshot/deep/report modes with Markdown/JSON export.
-- Cited source summaries (market, news, macro, fundamentals, web).
-- Sector/macro/news context blending in every brief.
-- Stronger AI grounding guard tied to the Data Trust Gate.
-- Public web research fallback when provider news is unavailable.
-
-### v0.7.0 Trading Safety Layer (done)
-
-- Risk guard with max position size, daily loss limit, kill switch, leverage warning, asset class restrictions.
-- Immutable order audit log (never UPDATE/DELETE).
-- Paper trading engine with stop-limit orders, cancel, positions aggregation, daily PnL.
-- Broker sandbox adapters: Alpaca paper (full HTTP), Tradier sandbox (full HTTP), IBKR (gateway scaffold).
-- 16 broker catalog entries with correct API endpoints and modes.
-- Realtime streaming: Kraken WebSocket, HyperLiquid WebSocket, Equity polling feed.
-- Algo trading engine with 3 built-in strategies: sma_cross, rsi_reversion, momentum.
-- New commands: /trading kill, resume, risk, audit, cancel, positions, broker use/status, stream, algo list/run.
-
-### v0.8.0 Portfolio & Backtesting (done)
-
-- Professional backtesting: fees/slippage/spread, walk-forward split, position sizing (fixed fractional + Kelly), 5 strategies, Sharpe/Sortino/Calmar, Monte Carlo robustness.
-- Portfolio time-series snapshots with risk ratios (Sharpe/Sortino/Calmar).
-- Rebalancing suggestions and benchmark comparison (vs SPY, QQQ, BTC, etc.).
-- What-if analysis for portfolio changes.
-- Alert daemon with conditional alerts (RSI, volume, MACD cross), alert history.
-- Unified export: batch export all data to CSV/JSON.
-- New commands: /backtest --export --monte-carlo --walk-forward, /portfolio chart/snapshot/whatif/benchmark, /alert daemon/history, /export all.
-
-### v0.9.0 Production Hardening (done)
-
-- GitHub Actions CI workflow (Python 3.11/3.12/3.13 × ubuntu/windows/macos).
-- Cross-platform install validation workflow.
-- Structured error reporting with secret redaction.
-- Full command smoke test suite (103 commands tested).
-- Release checklist automation script.
-- TUI polish with consistent spacing and rendering.
-- Provider response standardization across all adapters.
-- Setup wizard for first-run configuration.
-- Documentation hardening (docs/ directory with guides).
-- Security hardening with audit-secrets flag.
-- Data quality visibility standardization.
-- Critical path integration tests.
-
-### v1.0.0 — Non-MVP Release
-
-FinCLI v1.0.0 is the stable production release:
-
-- ✅ Commands are stable and documented.
-- ✅ Core TUI is polished and predictable.
-- ✅ Provider fallback is reliable with granular status labels.
-- ✅ Data quality is visible to the user.
-- ✅ Research, analysis, portfolio, journal, watchlist, and paper trading are usable end to end.
-- ✅ NPM and pip installation are reliable.
-- ✅ Security checks prevent accidental secret publication.
-- ✅ Tests cover critical provider, command, storage, and release flows (456 tests).
-- ✅ CI/CD pipeline validates on every push/PR.
-- ✅ No known critical bug remains in normal usage.
+---
 
 ## License
 

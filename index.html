@@ -29,7 +29,7 @@
   <a href="#top" class="brand">
     <span class="brand-mark">&gt;_</span>
     <span class="brand-name">FinCLI</span>
-    <span class="brand-ver">v1.0.0</span>
+    <span class="brand-ver">v1.8.3</span>
   </a>
   <nav class="nav-links" id="navLinks">
     <a href="#features">Features</a>
@@ -48,17 +48,17 @@
 <section class="hero" id="top">
   <div class="hero-inner">
     <div class="hero-text">
-      <span class="badge reveal"><span class="pulse"></span> v1.0.0 Stable · Production-ready</span>
+      <span class="badge reveal"><span class="pulse"></span> v1.8.3 Stable · Production-ready</span>
       <h1 class="reveal">The financial terminal<br><span class="grad">that lives in your shell</span></h1>
-      <p class="lead reveal">Research engine v3, portfolio risk, trading safety layer, backtesting, paper trading, alert daemon, realtime streaming, and 8 AI providers — all local-first, provider-aware, and grounded.</p>
+      <p class="lead reveal">Research engine v3, portfolio risk, live trading with Alpaca &amp; Binance, 8 backtest strategies, screener, alerts, plugin system, and 7 AI providers — all local-first, provider-aware, and grounded.</p>
       <div class="hero-cta reveal">
         <a href="#install" class="btn btn-primary">Get Started</a>
         <a href="#commands" class="btn btn-ghost">Explore Commands</a>
       </div>
       <div class="hero-stats reveal">
-        <div class="stat"><span class="num" data-target="456" data-suffix="">0</span><span class="label">Tests passing</span></div>
-        <div class="stat"><span class="num" data-target="100" data-suffix="+">0</span><span class="label">News connectors</span></div>
-        <div class="stat"><span class="num" data-target="8" data-suffix="">0</span><span class="label">AI providers</span></div>
+        <div class="stat"><span class="num" data-target="255" data-suffix="">0</span><span class="label">Ruff errors fixed</span></div>
+        <div class="stat"><span class="num" data-target="8" data-suffix="">0</span><span class="label">Backtest strategies</span></div>
+        <div class="stat"><span class="num" data-target="2" data-suffix="">0</span><span class="label">Live brokers</span></div>
       </div>
     </div>
 
@@ -82,7 +82,7 @@
   <div class="section-head reveal">
     <span class="kicker">// capabilities</span>
     <h2>Everything for local-first research</h2>
-    <p>A provider fallback chain with granular reliability labels, persistent metrics in SQLite, and an AI Grounding Guard — built for serious workflows.</p>
+    <p>A provider fallback chain with quality scoring, live trading with risk guard, screener, backtesting, plugin system, and AI Grounding Guard — built for serious workflows.</p>
   </div>
   <div class="grid features" id="featureGrid"></div>
 </section>
@@ -92,7 +92,7 @@
   <div class="section-head reveal">
     <span class="kicker">// install</span>
     <h2>Up and running in seconds</h2>
-    <p>Requires Python 3.11+. Choose the global npm wrapper, a local dev install, or set API keys from inside FinCLI.</p>
+    <p>Requires Python 3.11+ and Node.js 18+. Choose the global npm wrapper, a local dev install, or set API keys from inside FinCLI.</p>
   </div>
   <div class="tabs reveal">
     <div class="tab-buttons" id="tabButtons">
@@ -126,7 +126,7 @@ fincli</code></pre>
   <div class="section-head reveal">
     <span class="kicker">// commands</span>
     <h2>A command for every move</h2>
-    <p>Slash commands grouped by workflow. Click any command to copy it.</p>
+    <p>100+ slash commands grouped by workflow. Click any command to copy it.</p>
   </div>
   <div class="cmd-filters reveal" id="cmdFilters"></div>
   <div class="grid commands" id="cmdGrid"></div>
@@ -137,7 +137,7 @@ fincli</code></pre>
   <div class="section-head reveal">
     <span class="kicker">// research engine v3</span>
     <h2>One command, a complete picture</h2>
-    <p><code>/research</code> returns a compact, source-aware output with Snapshot, Signal, Risk, Context Blend, Trust Gate, Source Quality, Decision Points, and cited Sources. Modes: <code>--snapshot</code>, <code>--deep</code>, <code>--report</code>.</p>
+    <p><code>/research</code> returns a compact, source-aware output with Snapshot, Signal, Risk, Context Blend (sector + macro + news), Trust Gate, Missing Data gaps, Source Quality scoring, Decision Points, and cited Sources. Modes: <code>--snapshot</code>, <code>--deep</code>, <code>--report</code>.</p>
   </div>
   <div class="research-flow" id="researchFlow"></div>
 </section>
@@ -147,7 +147,7 @@ fincli</code></pre>
   <div class="section-head reveal">
     <span class="kicker">// trading safety layer</span>
     <h2>Trade with guardrails</h2>
-    <p>Risk guard with max position size, daily loss limit, kill switch, and leverage warning. Paper trading engine with stop-limit orders, cancel, positions aggregation, and daily PnL. Immutable order audit log — never UPDATE, never DELETE.</p>
+    <p>Live broker integration with Alpaca (US equities) and Binance (crypto). Risk guard with 20% max position size, 5% daily loss limit, kill switch, and auto-disconnect. Immutable order audit log — never UPDATE, never DELETE.</p>
   </div>
   <div class="grid features trading-grid" id="tradingGrid"></div>
 </section>
@@ -157,7 +157,7 @@ fincli</code></pre>
   <div class="section-head reveal">
     <span class="kicker">// backtesting & portfolio analytics</span>
     <h2>Test before you commit</h2>
-    <p>Professional backtesting with fees, slippage, spread modeling, walk-forward split, position sizing, 5 strategies, Sharpe/Sortino/Calmar ratios, and Monte Carlo robustness. Portfolio time-series snapshots, rebalancing suggestions, and benchmark comparison.</p>
+    <p>Professional backtesting with fees, slippage, walk-forward split, position sizing, 8 strategies (including Bollinger Squeeze, MACD Divergence, Volume Breakout), Monte Carlo robustness, and strategy comparison. Portfolio snapshots, rebalancing, and tax reporting.</p>
   </div>
   <div class="grid features backtest-grid" id="backtestGrid"></div>
 </section>
@@ -174,7 +174,7 @@ fincli</code></pre>
 <!-- cta -->
 <section class="cta-band reveal">
   <h2>Stop tab-switching. Start researching.</h2>
-  <p>v1.0.0 · Local-first · Provider-aware · AI-grounded · MIT licensed</p>
+  <p>v1.8.3 · Local-first · Provider-aware · AI-grounded · MIT licensed</p>
   <a href="#install" class="btn btn-primary lg">Install FinCLI</a>
 </section>
 
@@ -182,9 +182,9 @@ fincli</code></pre>
   <div class="footer-inner">
     <div class="footer-brand">
       <span class="brand-mark">&gt;_</span>
-      <strong>FinCLI</strong> <span class="muted">v1.0.0 · MIT</span>
+      <strong>FinCLI</strong> <span class="muted">v1.8.3 · MIT</span>
     </div>
-    <p class="disclaimer">AI output is informational and must not be treated as guaranteed signal or financial advice. yfinance is a delayed fallback, not realtime. Public RSS/news sources can change or fail without notice. Data quality depends on provider availability, API keys, provider plan entitlement, exchange coverage, and rate limits.</p>
+    <p class="disclaimer">AI output is informational only, not financial advice. Data quality depends on your provider and API plan. yfinance is a delayed fallback. Live trading involves real financial risk — use paper mode first. See <a href="https://github.com/your-username/FinCLI-Renewed" style="color:var(--cyan)">GitHub</a> for full documentation.</p>
   </div>
 </footer>
 

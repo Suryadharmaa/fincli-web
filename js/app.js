@@ -7,68 +7,68 @@
   /* ---------- data ---------- */
   const FEATURES = [
     { ico: "🔎", t: "Research Engine v3", d: "Snapshot/deep/report modes with cited sources, sector/macro/news context blending, Trust Gate, and web research fallback." },
-    { ico: "🔗", t: "Provider fallback chain", d: "Granular reliability labels: ok, auth_failed, rate_limited, entitlement_missing, partial_data, delayed, fallback, schedule_only, unavailable, circuit_open." },
-    { ico: "📊", t: "Provider metrics", d: "Runtime success rate, average latency, fallback count, error count — persisted in SQLite across sessions. Command capability matrix via /provider capabilities." },
-    { ico: "🛡️", t: "AI Grounding Guard", d: "/analyze and /research must consider data quality, provider reliability, missing data, cited sources, and provider metrics before conclusions." },
-    { ico: "📈", t: "Technical analysis", d: "RSI, MACD, EMA/SMA, Bollinger Bands, ATR, support/resistance, market structure, and technical debate. Multi-timeframe via /mtf." },
-    { ico: "💼", t: "Portfolio Risk v3", d: "Exposure by asset class & currency, concentration risk, drawdown estimate, risk budget, realized/unrealized PnL, and portfolio health score." },
+    { ico: "🔗", t: "Provider fallback chain", d: "Quality scoring (0–100), circuit breaker, per-operation metrics. Supported: yfinance, Finnhub, Twelve Data, Alpha Vantage, Polygon.io, IEX Cloud." },
+    { ico: "💼", t: "Portfolio Risk v3", d: "Asset class exposure, concentration risk, drawdown, VaR (historical + parametric), correlation matrix, tax reporting, and portfolio health score." },
+    { ico: "📊", t: "8 Backtest strategies", d: "sma_cross, rsi_reversion, momentum, bollinger_squeeze, macd_divergence, volume_breakout, mean_reversion, multi_factor. Compare strategies on same symbol." },
+    { ico: "📈", t: "Technical analysis", d: "RSI, MACD, EMA/SMA, Bollinger Bands, ATR, support/resistance, market structure. Multi-timeframe via /mtf." },
     { ico: "🗞️", t: "100+ news connectors", d: "Free RSS fallbacks plus API-key-ready providers like Finnhub, Twelve Data, Alpha Vantage. Source quality and freshness scoring." },
-    { ico: "🤖", t: "8 AI providers", d: "OpenRouter, OpenAI, Groq, Together, HuggingFace, Gemini, Anthropic, and compatible HTTP providers." },
-    { ico: "🔒", t: "Local-first storage", d: "Config, secrets, SQLite DB, cache, sessions, watchlist, portfolio, journal, alerts, audit log, and portfolio snapshots." },
-    { ico: "📡", t: "Realtime streaming", d: "Kraken WebSocket, HyperLiquid WebSocket, Equity polling feed — all configurable adapters with the websockets library." },
-    { ico: "🔔", t: "Alert daemon", d: "Background checking with conditional alerts (RSI, volume, MACD cross), alert history, and notification hooks." },
-    { ico: "📤", t: "Unified export", d: "Batch export all data — portfolio, journal, alerts, trades — to CSV/JSON. Research reports export to Markdown/JSON." },
+    { ico: "🤖", t: "7 AI providers", d: "OpenRouter, OpenAI, Groq, Together, HuggingFace, Gemini, Anthropic. Response caching with 30-min TTL." },
+    { ico: "📡", t: "Screener & Alerts", d: "Scan S&P 500, NASDAQ, crypto, forex, commodities. Filters: RSI, SMA cross, support/resistance. Conditional alerts with notification webhooks." },
+    { ico: "🔌", t: "Plugin system", d: "Custom commands via manifest, lifecycle hooks (on_startup, on_shutdown), sandboxed API. Blocked by default: os, sys, subprocess, exec()." },
+    { ico: "🔒", t: "Local-first storage", d: "SQLite, encrypted secrets (PBKDF2-SHA256), session recovery, watchlist, portfolio, journal, alerts, audit log." },
+    { ico: "🎨", t: "Theme system", d: "Multiple built-in themes. Create custom themes with --base. Switch via /theme list and /theme ocean." },
+    { ico: "📤", t: "Unified export", d: "Batch export portfolio, journal, alerts, trades to CSV/JSON. Research reports to Markdown/JSON. /export all for full dump." },
   ];
 
   const TRADING = [
-    { ico: "🛑", t: "Risk guard", d: "Max position size, daily loss limit, kill switch, leverage warning, asset class restrictions." },
-    { ico: "📋", t: "Audit log", d: "Immutable order audit log — never UPDATE, never DELETE. Full traceability." },
-    { ico: "📝", t: "Paper trading", d: "Engine with stop-limit orders, cancel, positions aggregation, and daily PnL." },
-    { ico: "🏦", t: "Broker sandboxes", d: "Alpaca paper, Tradier sandbox (full HTTP), IBKR gateway scaffold. 16 broker catalog entries." },
-    { ico: "⚙️", t: "Algo strategies", d: "3 built-in: sma_cross, rsi_reversion, momentum. Run via /algo run." },
-    { ico: "🔒", t: "Kill switch", d: "Instant trading halt via /trading kill. Resume when ready." },
+    { ico: "🏦", t: "Live brokers", d: "Alpaca (US equities, paper + live) and Binance (crypto, testnet + live). Connect via /trading live connect." },
+    { ico: "🛑", t: "Risk guard", d: "20% max position size, 5% daily loss limit, no leverage in paper mode, auto-disconnect on suspicious activity." },
+    { ico: "📋", t: "Audit log", d: "Immutable order audit log — never UPDATE, never DELETE. Full traceability via /trading audit." },
+    { ico: "📝", t: "Paper trading", d: "Paper mode for both Alpaca and Binance. Practice with real market data without risking capital." },
+    { ico: "🔒", t: "Kill switch", d: "Emergency stop via /trading kill — blocks all orders immediately. Resume when ready with /trading resume." },
+    { ico: "🔔", t: "Alert daemon", d: "Background checking with conditional alerts (price, RSI, volume, MACD cross). Discord & Telegram webhooks." },
   ];
 
   const BACKTEST = [
-    { ico: "📊", t: "Professional backtesting", d: "Fees, slippage, spread modeling. Walk-forward split. Position sizing: fixed fractional + Kelly." },
-    { ico: "📈", t: "Risk ratios", d: "Sharpe, Sortino, and Calmar ratios. Monte Carlo robustness testing." },
-    { ico: "🔄", t: "5 strategies", d: "sma_cross, rsi_reversion, momentum, bollinger, multi_factor. Export to md/json/csv." },
-    { ico: "📉", t: "Portfolio snapshots", d: "Time-series snapshots with risk ratios. Benchmark comparison vs SPY, QQQ, BTC." },
-    { ico: "🔀", t: "Rebalancing", d: "Rebalancing suggestions and what-if analysis for portfolio changes." },
+    { ico: "📊", t: "8 strategies", d: "sma_cross, rsi_reversion, momentum, bollinger_squeeze, macd_divergence, volume_breakout, mean_reversion, multi_factor." },
+    { ico: "🔄", t: "Strategy comparison", d: "/backtest compare AAPL sma_cross,rsi_reversion,macd_divergence — compare multiple strategies on same symbol." },
+    { ico: "📈", t: "Risk ratios", d: "Sharpe, Sortino, and Calmar ratios. Monte Carlo robustness testing. ASCII equity curve." },
+    { ico: "⚙️", t: "Custom parameters", d: "/backtest AAPL sma_cross 1y --fast 10 --slow 30 — tune strategy parameters." },
+    { ico: "📉", t: "Portfolio analytics", d: "VaR (historical + parametric), correlation matrix, tax reporting, rebalancing suggestions." },
     { ico: "📅", t: "Economic calendar", d: "/calendar week US high — economic events filtered by impact level." },
   ];
 
   const COMMANDS = {
-    "Research & Market": ["/research AAPL", "/research AAPL --snapshot", "/research AAPL --deep", "/research AAPL --report --export md report.md", "/market AAPL 1d", "/news AAPL 7d", "/technical AAPL 1d", "/analyze AAPL 1d", "/mtf AAPL 1d,1h,15m", "/calendar week US high"],
-    "Providers": ["/news_model list", "/news_model priority google_news_rss,yfinance", "/provider status", "/provider metrics", "/provider capabilities", "/provider entitlement", "/provider key status", "/provider test AAPL"],
-    "Portfolio & Risk": ["/portfolio", "/portfolio add AAPL 10 185", "/portfolio performance", "/portfolio risk", "/portfolio chart", "/portfolio snapshot", "/portfolio whatif", "/portfolio benchmark", "/tx add buy AAPL 10 185", "/tx add sell AAPL 5 195"],
-    "Trading": ["/trading kill", "/trading resume", "/trading risk", "/trading audit", "/trading cancel", "/trading positions", "/broker use alpaca_paper", "/broker status", "/stream kraken", "/algo list", "/algo run sma_cross"],
-    "Backtesting": ["/backtest AAPL 1y", "/backtest AAPL 1y --monte-carlo", "/backtest AAPL 1y --walk-forward", "/backtest AAPL 1y --export md"],
-    "Workflow": ["/watchlist add AAPL", "/scan watchlist rsi<30", "/journal add AAPL bullish \"...\"", "/journal stats", "/journal review", "/alert add AAPL above 200", "/alert daemon start", "/alert history", "/history", "/cache stats", "/cache clear"],
-    "Export": ["/export all", "/export portfolio csv", "/export journal json", "/export trades csv"],
-    "Security": ["/secrets status", "/secrets clear", "/privacy status", "/privacy purge"],
+    "Research & Analysis": ["/research AAPL", "/research AAPL --deep", "/research AAPL --report --export md report.md", "/market AAPL 1d", "/technical AAPL 1d", "/mtf AAPL 1d,1h,15m", "/chart AAPL 1d --overlay rsi,macd", "/news AAPL", "/calendar week US high"],
+    "Portfolio & Risk": ["/portfolio", "/portfolio add AAPL 10 185", "/portfolio update AAPL 5 160", "/portfolio risk", "/portfolio correlation", "/portfolio tax", "/portfolio benchmark SPY", "/portfolio rebalance", "/portfolio create crypto"],
+    "Live Trading": ["/trading live connect alpaca paper", "/trading live buy AAPL 10 --confirm", "/trading live sell AAPL 5 --confirm", "/trading live positions", "/trading live orders", "/trading kill", "/trading resume", "/trading audit"],
+    "Screener & Alerts": ["/scan sp500 rsi<30", "/scan nasdaq sma_cross", "/scan crypto below_resistance", "/scan watchlist rsi<30", "/watchlist add AAPL", "/alert add AAPL above 200", "/notification add discord alerts <webhook>"],
+    "Backtesting & Journal": ["/backtest AAPL sma_cross 1y", "/backtest AAPL sma_cross 1y --fast 10 --slow 30", "/backtest compare AAPL sma_cross,rsi_reversion,macd_divergence", "/journal add AAPL bullish \"setup\"", "/journal stats", "/journal review"],
+    "Favourites": ["/favourites", "/favourites add AAPL", "/favourites remove AAPL"],
+    "Providers & AI": ["/provider status", "/provider metrics", "/provider capabilities", "/provider test AAPL", "/provider compare AAPL", "/ai What is RSI?", "/ai_model"],
+    "System & Security": ["/doctor", "/doctor report", "/security status", "/security scan", "/security encrypt-key alpaca", "/theme list", "/theme ocean", "/session save", "/session restore", "/plugin list", "/cache stats", "/cache clear", "/setup"],
   };
 
   const RESEARCH = [
-    { t: "Snapshot", d: "Price, change, and key context at a glance" },
-    { t: "Signal", d: "Directional read from technicals & structure" },
+    { t: "Snapshot", d: "Price, change, and key metrics at a glance" },
+    { t: "Signal", d: "Directional read from technicals & market structure" },
     { t: "Risk", d: "What could invalidate the thesis" },
-    { t: "Context", d: "Sector, macro, and news blend" },
-    { t: "Trust Gate", d: "Confidence cap from data quality" },
-    { t: "Missing Data", d: "Honest gaps from provider limits" },
+    { t: "Context Blend", d: "Sector, macro, and news context combined" },
+    { t: "Trust Gate", d: "Confidence cap from data quality & provider reliability" },
+    { t: "Missing Data", d: "Honest gaps from provider limits and API plan" },
     { t: "Source Quality", d: "Freshness score and source grade A–E" },
-    { t: "Decision Points", d: "Concrete levels to watch" },
-    { t: "Sources", d: "Cited market, news, macro, fundamentals, web" },
+    { t: "Decision Points", d: "Concrete levels and triggers to watch" },
+    { t: "Cited Sources", d: "Market, news, macro, fundamentals, web — all cited" },
   ];
 
   const ROADMAP = [
-    { tag: "Shipped · v0.3.x", t: "Hardening", items: ["Provider runtime metrics by provider", "Persistent provider metrics", "AI Grounding Guard in /analyze", "Portfolio Risk v3 with drawdown & currency grouping", "Markdown / JSON research export"] },
-    { tag: "Shipped · v0.5.0", t: "Provider & Data Reliability", items: ["Standard ProviderResult envelope with granular statuses", "Command capability matrix via /provider capabilities", "Source quality and freshness scoring", "Persistent provider metrics across sessions"] },
-    { tag: "Shipped · v0.6.0", t: "Research Engine v3", items: ["Snapshot/deep/report modes with Markdown/JSON export", "Cited source summaries", "Sector/macro/news context blending", "Stronger AI grounding guard tied to Data Trust Gate", "Public web research fallback"] },
-    { tag: "Shipped · v0.7.0", t: "Trading Safety Layer", items: ["Risk guard with kill switch and leverage warning", "Immutable order audit log", "Paper trading engine with stop-limit orders", "Broker sandbox adapters: Alpaca, Tradier, IBKR", "Realtime streaming: Kraken, HyperLiquid, Equity", "Algo trading: sma_cross, rsi_reversion, momentum"] },
-    { tag: "Shipped · v0.8.0", t: "Portfolio & Backtesting", items: ["Professional backtesting: fees/slippage/spread, walk-forward", "Position sizing: fixed fractional + Kelly", "5 strategies with Sharpe/Sortino/Calmar and Monte Carlo", "Portfolio snapshots, rebalancing, benchmark comparison", "Alert daemon with conditional alerts", "Unified batch export to CSV/JSON"] },
-    { tag: "Shipped · v0.9.0", t: "Production Hardening", items: ["GitHub Actions CI (Python 3.11/3.12/3.13 × 3 OS)", "103-command smoke test suite", "Structured error reporting with secret redaction", "Setup wizard, TUI polish, security hardening", "Critical path integration tests"] },
-    { tag: "Stable · v1.0.0", t: "Production Release", items: ["456 tests covering critical flows", "CI/CD pipeline validates on every push/PR", "Commands stable and documented", "Provider fallback reliable with granular status labels", "No known critical bug in normal usage"] },
+    { tag: "v1.0.5", t: "Foundation", items: ["Research Engine v3", "Provider System v2", "Portfolio Risk v3", "Trading Safety Layer", "Plugin system", "Theme system"] },
+    { tag: "v1.1.0", t: "Live Trading", items: ["Live trading with Alpaca (paper + live)", "Broker key encryption (PBKDF2-SHA256)", "Command consolidation", "/portfolio rebalance", "/export broker"] },
+    { tag: "v1.3.0", t: "Charts & AI", items: ["Terminal charting: ASCII candlestick with RSI/MACD", "AI context sliding window (4k tokens)", "Notification webhooks: Discord and Telegram", "Interactive model picker"] },
+    { tag: "v1.4.0", t: "Screener & Multi-Portfolio", items: ["Universe-wide screener (sp500, nasdaq, crypto, forex)", "Multi-portfolio support", "Binance crypto broker integration", "Extended scan filters"] },
+    { tag: "v1.6.0", t: "Ollama & i18n", items: ["Ollama local LLM support (offline AI)", "Internationalization: /lang command", "Security: path traversal fix", "Performance: fix O(n²) patterns"] },
+    { tag: "v1.8.0", t: "Backtesting v2", items: ["4 new strategies (bollinger_squeeze, macd_divergence, volume_breakout, mean_reversion)", "Strategy comparison: /backtest compare", "Portfolio VaR, correlation, tax reporting", "Polygon.io and IEX Cloud providers", "Command aliases: /p, /t, /r, /b, /w, /j, /m, /n, /a, /s", "/favourites for quick access"] },
+    { tag: "v1.8.3", t: "Code Quality", items: ["255 ruff errors → 0 across 80+ files", "Fix 6 critical undefined names", "92 typing-only imports behind TYPE_CHECKING", "Full lint cleanup and PEP8 compliance"] },
   ];
 
   /* ---------- helpers ---------- */
@@ -291,9 +291,9 @@
       { c: 'label', t: 'HEALTH      ', nobreak: true }, { c: 'val', t: '74/100 ', nobreak: true }, { c: 'muted', t: '· reduce AAPL concentration' },
     ],
     "/backtest AAPL 1y": [
-      { c: 'prompt', t: '> ', nobreak: true }, { c: 'cmd', t: '/backtest AAPL 1y --monte-carlo', type: true, delay: 500 },
+      { c: 'prompt', t: '> ', nobreak: true }, { c: 'cmd', t: '/backtest AAPL sma_cross 1y --monte-carlo', type: true, delay: 500 },
       { c: 'muted', t: 'running 1000 simulations…', delay: 400 },
-      { c: 'label', t: 'STRATEGY    ', nobreak: true }, { c: 'val', t: 'sma_cross ', nobreak: true }, { c: 'muted', t: '· 20/50 SMA' },
+      { c: 'label', t: 'STRATEGY    ', nobreak: true }, { c: 'val', t: 'sma_cross ', nobreak: true }, { c: 'muted', t: '· 20/50 SMA · 8 strategies available' },
       { c: 'label', t: 'RETURN      ', nobreak: true }, { c: 'up', t: '+18.7% ', nobreak: true }, { c: 'muted', t: 'annualized' },
       { c: 'label', t: 'SHARPE      ', nobreak: true }, { c: 'val', t: '1.42 ', nobreak: true }, { c: 'muted', t: '· Sortino 1.89 · Calmar 1.12' },
       { c: 'label', t: 'MONTE CARLO ', nobreak: true }, { c: 'val', t: '5th: ', nobreak: true }, { c: 'down', t: '-8.2% ', nobreak: true }, { c: 'val', t: '95th: ', nobreak: true }, { c: 'up', t: '+41.3%' },
@@ -311,26 +311,28 @@
     ],
     "/help": [
       { c: 'prompt', t: '> ', nobreak: true }, { c: 'cmd', t: '/help', type: true, delay: 400 },
-      { c: 'muted', t: 'available commands:', delay: 200 },
+      { c: 'muted', t: '100+ commands available:', delay: 200 },
       { c: 'label', t: '  /research   ', nobreak: true }, { c: 'val', t: 'Snapshot, deep, or report for a symbol' },
-      { c: 'label', t: '  /market     ', nobreak: true }, { c: 'val', t: 'Price, volume, and provider status' },
+      { c: 'label', t: '  /market     ', nobreak: true }, { c: 'val', t: 'Quote, news, and technical summary' },
       { c: 'label', t: '  /technical  ', nobreak: true }, { c: 'val', t: 'RSI, MACD, EMA/SMA, Bollinger, ATR' },
-      { c: 'label', t: '  /analyze    ', nobreak: true }, { c: 'val', t: 'AI-grounded analysis with provider context' },
-      { c: 'label', t: '  /portfolio  ', nobreak: true }, { c: 'val', t: 'Holdings, risk, PnL, performance' },
-      { c: 'label', t: '  /backtest   ', nobreak: true }, { c: 'val', t: 'Strategy backtest with Monte Carlo' },
-      { c: 'label', t: '  /trading    ', nobreak: true }, { c: 'val', t: 'Risk guard, kill switch, paper trading' },
+      { c: 'label', t: '  /chart      ', nobreak: true }, { c: 'val', t: 'ASCII candlestick with indicator overlays' },
+      { c: 'label', t: '  /portfolio  ', nobreak: true }, { c: 'val', t: 'Holdings, risk, correlation, tax, rebalance' },
+      { c: 'label', t: '  /backtest   ', nobreak: true }, { c: 'val', t: '8 strategies with Monte Carlo & comparison' },
+      { c: 'label', t: '  /trading    ', nobreak: true }, { c: 'val', t: 'Alpaca & Binance live trading, kill switch' },
+      { c: 'label', t: '  /scan       ', nobreak: true }, { c: 'val', t: 'Screener: sp500, nasdaq, crypto, forex' },
       { c: 'label', t: '  /watchlist  ', nobreak: true }, { c: 'val', t: 'Add, remove, scan with filters' },
-      { c: 'label', t: '  /journal    ', nobreak: true }, { c: 'val', t: 'Trade notes, stats, review' },
+      { c: 'label', t: '  /favourites ', nobreak: true }, { c: 'val', t: 'Quick access to most-used symbols' },
       { c: 'label', t: '  /alert      ', nobreak: true }, { c: 'val', t: 'Conditional alerts and daemon' },
-      { c: 'label', t: '  /provider   ', nobreak: true }, { c: 'val', t: 'Status, metrics, capabilities, test' },
-      { c: 'label', t: '  /news       ', nobreak: true }, { c: 'val', t: 'Latest headlines for a symbol' },
+      { c: 'label', t: '  /journal    ', nobreak: true }, { c: 'val', t: 'Trade notes, stats, review' },
+      { c: 'label', t: '  /news       ', nobreak: true }, { c: 'val', t: '100+ sources for a symbol' },
       { c: 'label', t: '  /export     ', nobreak: true }, { c: 'val', t: 'Batch export to CSV/JSON' },
+      { c: 'muted', t: 'aliases: /p  /t  /r  /b  /w  /j  /m  /n  /a  /s' },
       { c: 'muted', t: 'type any command to try it · auto-demo resumes after 8s idle' },
     ],
   };
 
   // auto-demo sequence (loops when idle)
-  const AUTO_SEQ = ["/help", "/research AAPL", "/portfolio risk", "/backtest AAPL 1y"];
+  const AUTO_SEQ = ["/help", "/research AAPL", "/portfolio risk", "/backtest AAPL 1y", "/market AAPL 1d"];
   const body = $("#termBody");
   const termTitle = $("#termTitle");
   const termField = $("#termField");
