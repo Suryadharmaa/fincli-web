@@ -1,195 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FinCLI</title>
-<meta name="description" content="FinCLI is a production-ready financial CLI/TUI terminal for market research, technical analysis, AI-assisted analysis, provider management, portfolio risk, journaling, watchlists, backtesting, paper trading, and local-first financial workflows.">
-<meta name="keywords" content="FinCLI, financial terminal, CLI, TUI, market research, technical analysis, AI trading, portfolio risk, backtesting, paper trading, algo trading">
-<meta name="theme-color" content="#06080c">
-<meta property="og:title" content="FinCLI — Production-Ready Financial Terminal">
-<meta property="og:description" content="Local-first financial CLI/TUI for research, technical analysis, AI-assisted insight, portfolio risk, backtesting, and paper trading.">
-<meta property="og:type" content="website">
-<meta property="og:image" content="img/fincli_logo.png">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2306080c'/><text x='4' y='24' font-family='monospace' font-size='20' fill='%2300e676'>&gt;_</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinCLI v1.9.0 — Terminal-Native Financial Workstation</title>
+    <meta
+      name="description"
+      content="FinCLI is a terminal-native financial workstation for AI market research, local web access, provider-aware data, portfolio risk, live trading, and backtesting."
+    />
+    <meta
+      name="keywords"
+      content="FinCLI, financial terminal, AI market research, local web access, portfolio risk, backtesting, Alpaca, Binance"
+    />
+    <meta name="author" content="FinCLI" />
+    <meta name="theme-color" content="#090a0c" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="https://suryadharmaa.github.io/fincli-web/" />
+    <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="%BASE_URL%site.webmanifest" />
 
-<!-- animated backgrounds -->
-<div class="bg-grid" aria-hidden="true"></div>
-<canvas id="tape" aria-hidden="true"></canvas>
-<div class="bg-glow" aria-hidden="true"></div>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="FinCLI" />
+    <meta property="og:title" content="FinCLI v1.9.0 — Terminal-Native Financial Workstation" />
+    <meta
+      property="og:description"
+      content="Research, trade, and analyze markets without leaving your shell — now with authenticated Local Web Access."
+    />
+    <meta property="og:url" content="https://suryadharmaa.github.io/fincli-web/" />
+    <meta property="og:image" content="https://suryadharmaa.github.io/fincli-web/og-fincli.svg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="FinCLI Roman-Spartan financial command center" />
 
-<!-- nav -->
-<header class="nav" id="nav">
-  <a href="#top" class="brand">
-    <span class="brand-mark">&gt;_</span>
-    <span class="brand-name">FinCLI</span>
-    <span class="brand-ver">v1.8.3</span>
-  </a>
-  <nav class="nav-links" id="navLinks">
-    <a href="#features">Features</a>
-    <a href="#install">Install</a>
-    <a href="#commands">Commands</a>
-    <a href="#research">Research</a>
-    <a href="#trading">Trading</a>
-    <a href="#backtesting">Backtesting</a>
-    <a href="#roadmap">Roadmap</a>
-    <a class="nav-cta" href="https://www.npmjs.com/package/@drico2008/fincli" target="_blank" rel="noopener">npm&nbsp;↗</a>
-  </nav>
-  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">☰</button>
-</header>
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="FinCLI v1.9.0 — Terminal-Native Financial Workstation" />
+    <meta
+      name="twitter:description"
+      content="AI-native market research, provider-aware data, portfolio risk, live trading, backtesting, and Local Web Access."
+    />
+    <meta name="twitter:image" content="https://suryadharmaa.github.io/fincli-web/og-fincli.svg" />
 
-<!-- hero -->
-<section class="hero" id="top">
-  <div class="hero-inner">
-    <div class="hero-text">
-      <span class="badge reveal"><span class="pulse"></span> v1.8.3 Stable · Production-ready</span>
-      <h1 class="reveal">The financial terminal<br><span class="grad">that lives in your shell</span></h1>
-      <p class="lead reveal">Research engine v3, portfolio risk, live trading with Alpaca &amp; Binance, 8 backtest strategies, screener, alerts, plugin system, and 7 AI providers — all local-first, provider-aware, and grounded.</p>
-      <div class="hero-cta reveal">
-        <a href="#install" class="btn btn-primary">Get Started</a>
-        <a href="#commands" class="btn btn-ghost">Explore Commands</a>
-      </div>
-      <div class="hero-stats reveal">
-        <div class="stat"><span class="num" data-target="255" data-suffix="">0</span><span class="label">Ruff errors fixed</span></div>
-        <div class="stat"><span class="num" data-target="8" data-suffix="">0</span><span class="label">Backtest strategies</span></div>
-        <div class="stat"><span class="num" data-target="2" data-suffix="">0</span><span class="label">Live brokers</span></div>
-      </div>
-    </div>
-
-    <div class="terminal reveal" id="terminal">
-      <div class="term-bar">
-        <span class="tdot red"></span><span class="tdot yellow"></span><span class="tdot green"></span>
-        <span class="term-title" id="termTitle">fincli — live demo</span>
-      </div>
-      <div class="term-body" id="termBody"></div>
-      <div class="term-input" id="termInput">
-        <span class="prompt">&gt;&nbsp;</span>
-        <input type="text" id="termField" placeholder="type /help for commands" autocomplete="off" spellcheck="false" aria-label="Type a FinCLI command">
-      </div>
-    </div>
-  </div>
-  <a href="#features" class="scroll-hint" aria-label="Scroll to features">▼</a>
-</section>
-
-<!-- features -->
-<section class="section" id="features">
-  <div class="section-head reveal">
-    <span class="kicker">// capabilities</span>
-    <h2>Everything for local-first research</h2>
-    <p>A provider fallback chain with quality scoring, live trading with risk guard, screener, backtesting, plugin system, and AI Grounding Guard — built for serious workflows.</p>
-  </div>
-  <div class="grid features" id="featureGrid"></div>
-</section>
-
-<!-- install -->
-<section class="section alt" id="install">
-  <div class="section-head reveal">
-    <span class="kicker">// install</span>
-    <h2>Up and running in seconds</h2>
-    <p>Requires Python 3.11+ and Node.js 18+. Choose the global npm wrapper, a local dev install, or set API keys from inside FinCLI.</p>
-  </div>
-  <div class="tabs reveal">
-    <div class="tab-buttons" id="tabButtons">
-      <button class="tab-btn active" data-tab="npm">npm wrapper</button>
-      <button class="tab-btn" data-tab="dev">local dev</button>
-      <button class="tab-btn" data-tab="keys">api keys</button>
-    </div>
-    <div class="tab-panel active" data-panel="npm">
-      <pre class="code"><button class="copy" aria-label="Copy">copy</button><code>npm install -g @drico2008/fincli
-fincli</code></pre>
-      <p class="note">Creates an isolated <code>.npm-python</code> environment inside the installed package.</p>
-    </div>
-    <div class="tab-panel" data-panel="dev">
-      <pre class="code"><button class="copy" aria-label="Copy">copy</button><code>python -m venv .venv
-.venv\Scripts\activate
-pip install -e ".[dev]"
-fincli</code></pre>
-      <p class="note">Editable install with dev extras for contributing.</p>
-    </div>
-    <div class="tab-panel" data-panel="keys">
-      <pre class="code"><button class="copy" aria-label="Copy">copy</button><code>/ai_model key groq &lt;api_key&gt;
-/news_model key finnhub &lt;api_key&gt;
-/news_model key twelvedata &lt;api_key&gt;</code></pre>
-      <p class="note">Keys are stored locally in <code>~/.fincli/secrets.env</code> and masked in terminal output.</p>
-    </div>
-  </div>
-</section>
-
-<!-- commands -->
-<section class="section" id="commands">
-  <div class="section-head reveal">
-    <span class="kicker">// commands</span>
-    <h2>A command for every move</h2>
-    <p>100+ slash commands grouped by workflow. Click any command to copy it.</p>
-  </div>
-  <div class="cmd-filters reveal" id="cmdFilters"></div>
-  <div class="grid commands" id="cmdGrid"></div>
-</section>
-
-<!-- research -->
-<section class="section alt" id="research">
-  <div class="section-head reveal">
-    <span class="kicker">// research engine v3</span>
-    <h2>One command, a complete picture</h2>
-    <p><code>/research</code> returns a compact, source-aware output with Snapshot, Signal, Risk, Context Blend (sector + macro + news), Trust Gate, Missing Data gaps, Source Quality scoring, Decision Points, and cited Sources. Modes: <code>--snapshot</code>, <code>--deep</code>, <code>--report</code>.</p>
-  </div>
-  <div class="research-flow" id="researchFlow"></div>
-</section>
-
-<!-- trading -->
-<section class="section alt" id="trading">
-  <div class="section-head reveal">
-    <span class="kicker">// trading safety layer</span>
-    <h2>Trade with guardrails</h2>
-    <p>Live broker integration with Alpaca (US equities) and Binance (crypto). Risk guard with 20% max position size, 5% daily loss limit, kill switch, and auto-disconnect. Immutable order audit log — never UPDATE, never DELETE.</p>
-  </div>
-  <div class="grid features trading-grid" id="tradingGrid"></div>
-</section>
-
-<!-- backtesting -->
-<section class="section" id="backtesting">
-  <div class="section-head reveal">
-    <span class="kicker">// backtesting & portfolio analytics</span>
-    <h2>Test before you commit</h2>
-    <p>Professional backtesting with fees, slippage, walk-forward split, position sizing, 8 strategies (including Bollinger Squeeze, MACD Divergence, Volume Breakout), Monte Carlo robustness, and strategy comparison. Portfolio snapshots, rebalancing, and tax reporting.</p>
-  </div>
-  <div class="grid features backtest-grid" id="backtestGrid"></div>
-</section>
-
-<!-- roadmap -->
-<section class="section alt" id="roadmap">
-  <div class="section-head reveal">
-    <span class="kicker">// roadmap</span>
-    <h2>Where FinCLI is heading</h2>
-  </div>
-  <div class="timeline" id="timeline"></div>
-</section>
-
-<!-- cta -->
-<section class="cta-band reveal">
-  <h2>Stop tab-switching. Start researching.</h2>
-  <p>v1.8.3 · Local-first · Provider-aware · AI-grounded · MIT licensed</p>
-  <a href="#install" class="btn btn-primary lg">Install FinCLI</a>
-</section>
-
-<footer class="footer">
-  <div class="footer-inner">
-    <div class="footer-brand">
-      <span class="brand-mark">&gt;_</span>
-      <strong>FinCLI</strong> <span class="muted">v1.8.3 · MIT</span>
-    </div>
-    <p class="disclaimer">AI output is informational only, not financial advice. Data quality depends on your provider and API plan. yfinance is a delayed fallback. Live trading involves real financial risk — use paper mode first. See <a href="https://github.com/your-username/FinCLI-Renewed" style="color:var(--cyan)">GitHub</a> for full documentation.</p>
-  </div>
-</footer>
-
-<button class="to-top" id="toTop" aria-label="Back to top">↑</button>
-
-<script src="js/app.js"></script>
-</body>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "FinCLI",
+        "softwareVersion": "1.9.0",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Windows, macOS, Linux",
+        "url": "https://suryadharmaa.github.io/fincli-web/",
+        "downloadUrl": "https://www.npmjs.com/package/@drico2008/fincli",
+        "license": "https://opensource.org/license/mit",
+        "description": "A terminal-native financial workstation for market research, trading, portfolio risk, and backtesting."
+      }
+    </script>
+  </head>
+  <body>
+    <noscript>FinCLI’s interactive command center requires JavaScript to run.</noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

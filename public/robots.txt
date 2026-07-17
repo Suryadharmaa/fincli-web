@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://suryadharmaa.github.io/fincli-web/sitemap.xml
