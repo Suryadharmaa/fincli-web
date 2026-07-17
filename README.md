@@ -1,15 +1,15 @@
-# FinCLI v1.8.3
+# FinCLI v1.9.0
 
 [![npm version](https://img.shields.io/npm/v/@drico2008/fincli)](https://www.npmjs.com/package/@drico2008/fincli)
 [![npm downloads](https://img.shields.io/npm/dm/@drico2008/fincli?label=downloads%2Fmonth)](https://www.npmjs.com/package/@drico2008/fincli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/Python-3.11+-blue)
 ![Node](https://img.shields.io/badge/Node.js-18+-green)
-[![Socket Badge](https://badge.socket.dev/npm/package/@drico2008/fincli/1.0.5)](https://badge.socket.dev/npm/package/@drico2008/fincli/1.0.5)
+[![Socket Badge](https://badge.socket.dev/npm/package/@drico2008/fincli)](https://badge.socket.dev/npm/package/@drico2008/fincli)
 
 **A terminal-native financial workstation. Research, trade, and analyze markets without leaving your shell.**
 
-![FinCLI startup dashboard](img/image.png)
+![FinCLI v1.9.0 command center](public/og-fincli.svg)
 
 ---
 
@@ -17,7 +17,7 @@
 
 - **Trade from the terminal** — Live broker integration (Alpaca + Binance) with risk guard, kill switch, and immutable audit log. Not just a data viewer.
 - **AI that knows your data** — The assistant is grounded in your provider's actual data quality, reliability scores, and missing data gaps. No hallucinated prices.
-- **Research Engine v3** — Snapshot, deep analysis, or full report with cited sources, sector/macro/news blending, and trust scoring — all from `/research AAPL`.
+- **Research Engine v4** — Snapshot, deep analysis, or structured report with facts, inferences, scenario matrix, source scoring, and trust-capped citations — all from `/research AAPL`.
 - **Local-first, no cloud lock-in** — SQLite, encrypted secrets at rest, session recovery. Your data stays on your machine.
 
 > ⚠️ AI output is informational only, not financial advice. Data quality depends on your provider and API plan.
@@ -32,6 +32,8 @@ fincli setup
 fincli
 ```
 
+The npm package includes Local Web Access dependencies. Python source users can install them with `pip install -e ".[web]"`.
+
 Requires Python 3.11+ and Node.js 18+. See [Prerequisites](#prerequisites) if you need to install them.
 
 ---
@@ -45,6 +47,28 @@ Requires Python 3.11+ and Node.js 18+. See [Prerequisites](#prerequisites) if yo
 /portfolio add AAPL 10 185     # Track a position
 /trading live connect alpaca paper  # Connect to Alpaca paper trading
 ```
+
+## Local Web Access
+
+FinCLI v1.9.0 adds an optional, authenticated browser workspace at `http://localhost:19850`. The terminal remains the primary interface and all existing commands continue to work.
+
+```bash
+pip install -e ".[web]"
+fincli web start
+# or: fincli --web
+```
+
+From the TUI, use `/web start`, `/web status`, `/web open`, `/web stop`, `/web logs`, `/web token rotate`, or `/web config`. Existing `/web <research query>` behavior remains available.
+
+The UI includes local conversation history, responsive dark/light themes, provider and model status, streaming-ready chat, research shortcuts, and a safe bridge to the existing FinCLI command router.
+
+Type `/` in the web composer to browse and search the complete FinCLI command registry. Slash commands use the same `CommandRouter` and local services as the terminal. Commands that change sensitive state require browser confirmation; commands containing raw credentials remain terminal-only so secrets cannot leak into web or session history.
+
+> The local web UI is intended for local use. Do not expose it publicly unless you understand the security risks. Authentication is enabled and the server binds to `127.0.0.1` by default. Browser responses never include stored API keys or broker secrets, and sensitive commands require explicit confirmation.
+
+Interactive Local Web product simulation: [open the command chamber](https://suryadharmaa.github.io/fincli-web/#local-web).
+
+Troubleshooting: if web dependencies are missing, run `pip install -e ".[web]"`. Use `/web logs` for startup errors and `/web config set port <port>` if port `19850` is occupied.
 
 ---
 
@@ -61,7 +85,7 @@ Requires Python 3.11+ and Node.js 18+. See [Prerequisites](#prerequisites) if yo
 /calendar week US high   # Economic calendar
 ```
 
-Research Engine v3 returns: Snapshot → Signal → Risk → Context (sector + macro + news) → Trust Gate → Sources → Summary.
+Research Engine v4 returns: Snapshot → Signal → Risk → Context → Trust Gate → Verified Facts → Inferences → Missing Data → Scenario Matrix → Source Scores → Summary.
 
 ---
 
@@ -153,7 +177,7 @@ Favourites are tracked by usage count — most-used symbols appear first.
 
 Context-aware with token-based sliding window (4k tokens). Grounded in provider data quality, reliability scores, and missing data — so it won't confidently cite stale or unavailable data. Response caching (30-min TTL). Refuses programming questions by design.
 
-Supported AI providers: OpenRouter, OpenAI, Groq, Together, HuggingFace, Gemini, Anthropic.
+Supported AI providers: OpenRouter, OpenAI, Groq, Together, HuggingFace, Gemini, Anthropic, Ollama.
 
 ---
 
@@ -179,6 +203,7 @@ Strategies: sma_cross, rsi_reversion, momentum, bollinger_squeeze, macd_divergen
 ```text
 /provider status                    # Provider health overview
 /provider metrics                   # Per-operation breakdown
+/provider trust                     # Trust level, fallback state, and AI confidence limit
 /provider capabilities              # Formal capability declarations
 /provider reset <provider>          # Manual circuit breaker reset
 /provider key status
@@ -188,11 +213,11 @@ Strategies: sma_cross, rsi_reversion, momentum, bollinger_squeeze, macd_divergen
 /news_model                         # Interactive market/news provider picker
 ```
 
-Supported data providers: yfinance (delayed fallback), Finnhub, Twelve Data, Alpha Vantage, custom provider schema.
+Supported data providers: yfinance (delayed fallback), Finnhub, Twelve Data, Alpha Vantage, Polygon.io, IEX Cloud, custom provider schema.
 
-Provider System v2 features: formal capability declarations, `ProviderResponse` envelope with quality scoring (0–100), per-operation metrics, circuit breaker with manual reset, proactive health warnings on latency/error rate spikes.
+Provider System v3 features: formal capability declarations, first-class Polygon/IEX wiring, `ProviderResponse` envelope with quality scoring (0–100), per-operation metrics, circuit breaker with manual reset, proactive health warnings on latency/error rate spikes.
 
-Free API keys: [Groq](https://console.groq.com/) · [OpenRouter](https://openrouter.ai/) · [Finnhub](https://finnhub.io/) · [Twelve Data](https://twelvedata.com/) · [Alpha Vantage](https://www.alphavantage.co/)
+Free API keys: [Groq](https://console.groq.com/) · [OpenRouter](https://openrouter.ai/) · [Finnhub](https://finnhub.io/) · [Twelve Data](https://twelvedata.com/) · [Alpha Vantage](https://www.alphavantage.co/) · [Polygon.io](https://polygon.io/) · [IEX Cloud](https://iexcloud.io/)
 
 ---
 
@@ -202,7 +227,7 @@ Free API keys: [Groq](https://console.groq.com/) · [OpenRouter](https://openrou
 /doctor report                      # Diagnostic dump (no secrets)
 /security status
 /security scan                      # Token pattern scan
-/security encrypt-key alpaca        # Encrypt broker key (PBKDF2-SHA256)
+/secrets rotate ALPACA_API_KEY      # Rotate stored API key
 /security lockdown                  # Emergency secret wipe
 /security purge                     # Clear secrets, history, cache
 /theme list
@@ -216,6 +241,26 @@ Free API keys: [Groq](https://console.groq.com/) · [OpenRouter](https://openrou
 /cache clear
 /setup                              # Re-run first-run wizard
 ```
+
+### Privacy Cleanup
+
+Use `/security purge` for normal cleanup of stored secrets, the current terminal session history, and market caches. It keeps portfolio, journal, alerts, watchlist, profile, and configuration data.
+
+To remove every saved terminal session, run `/history clear` as well:
+
+```text
+/security purge
+/history clear
+```
+
+Stop Local Web Access before a complete secret cleanup. Starting it again may generate a new local web access token:
+
+```text
+/web stop
+/security purge
+```
+
+FinCLI never prints deleted secret values. API keys must be configured again after a purge, and Local Web Access requires a newly generated token before the next login.
 
 ---
 
@@ -273,7 +318,7 @@ sudo apt install nodejs -y
 <summary>Install from source (developers)</summary>
 
 ```bash
-git clone https://github.com/your-username/FinCLI-Renewed.git
+git clone https://github.com/Suryadharmaa/FinCLI-Renewed.git fincli
 cd fincli
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
@@ -286,6 +331,31 @@ fincli
 ---
 
 ## Changelog
+
+### Next Major (validated, unreleased)
+- **Provider System v3**: first-class Polygon.io and IEX Cloud market providers across manager, config, TUI selector, key status, entitlements, and symbol intelligence
+- **Research Engine v4**: `/research --report` now includes verified facts, inferences, missing-data severity, bull/base/bear scenario matrix, citation IDs, and source scoring
+- Preserves deterministic snapshot mode and existing v1.8.5 TUI cockpit behavior
+- Validation passed: Ruff, compileall, 792-test pytest suite, npm wrapper check, prepublish safety check, and npm pack dry-run
+
+### v1.9.0
+- Add Local Web Access with a browser-based FinCLI dashboard
+- Add a familiar local chat UI for AI-assisted market research and safe command execution
+- Add an authenticated FastAPI server, SSE streaming endpoint, conversation persistence, model/provider status, CORS, CSRF header validation, rate limiting, and local-only defaults
+- Add web views and shortcuts for research, portfolio, watchlist, backtesting, providers, and settings
+- Preserve all v1.8.5 terminal workflows, including legacy `/web <query>` research
+
+### v1.8.5
+- **TUI Financial Cockpit Refresh**: add a top cockpit strip with version, provider, trust, AI model, session state, and shortcut hints
+- Improve inline command palette grouping and first-match highlighting for faster terminal workflows
+- Keep animations subtle and async: low-noise working spinner, streaming token counter, and no blocking UI effects
+- Preserve release safety: no new dependencies, commands, schemas, provider contracts, or broker behavior changes
+
+### v1.8.4
+- **Trust & Reliability**: add `/provider trust` to summarize provider health, fallback behavior, data completeness, and AI confidence limits
+- Clear trust labels: `Strong`, `Usable`, `Limited`, and `Blocked`
+- Release-readiness cleanup: lint and smoke-test blockers fixed before feature work
+- Keep the release focused: no schema changes, new dependencies, or provider contract changes
 
 ### v1.8.3
 - Full codebase lint cleanup: 255 ruff errors → 0 across 80+ files
@@ -418,3 +488,25 @@ fincli
 ## License
 
 MIT
+
+---
+
+## Landing Page Development & Deployment
+
+This repository contains the static FinCLI landing page built with React, TypeScript, and Vite. The production site is published at <https://suryadharmaa.github.io/fincli-web/>.
+
+The landing-page toolchain requires Node.js 20.19+ or 22.12+; Node.js 22 is recommended and used in CI. This is separate from the FinCLI product runtime, which supports Node.js 18+.
+
+```bash
+npm install
+npm run dev
+```
+
+Create and preview a production build:
+
+```bash
+npm run build
+npm run preview
+```
+
+Vite uses the GitHub Pages project base path `/fincli-web/`. Pushing to `main` runs `.github/workflows/deploy-pages.yml`, builds the static assets, and deploys `dist` through GitHub Pages. In repository settings, set **Pages → Source** to **GitHub Actions**. The landing page contains static product simulations only; never add API keys, broker credentials, or secrets to frontend environment variables.
