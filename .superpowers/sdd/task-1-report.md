@@ -1,0 +1,188 @@
+# Task 1 Report: Audit Pages-sensitive paths and deployment wiring
+
+## What you inspected
+
+- `vite.config.ts`
+  - Confirmed `base: '/fincli-web/'`.
+- `index.html`
+  - Confirmed canonical URL, Open Graph URLs, manifest link, and favicon use the published GitHub Pages location or `%BASE_URL%`.
+  - Confirmed the Vite entry script remains the expected root-relative development entry: `src="/src/main.tsx"`.
+- `.github/workflows/deploy-pages.yml`
+  - Confirmed standard GitHub Pages workflow: checkout, `npm ci`, `npm run build`, upload `dist`, deploy with `actions/deploy-pages`.
+- `public/site.webmanifest`
+  - Confirmed `start_url` is `/fincli-web/`.
+- `public/robots.txt`
+  - Confirmed sitemap points to `https://suryadharmaa.github.io/fincli-web/sitemap.xml`.
+- `public/sitemap.xml`
+  - Confirmed `<loc>` points to `https://suryadharmaa.github.io/fincli-web/`.
+- `package.json`
+  - Confirmed `build` and `preview` scripts are standard Vite scripts.
+- Scan targets from the brief: `index.html`, `public`, `src`, `.github`
+  - Checked for root-relative or domain-sensitive references that would break under a GitHub Pages subpath deploy.
+
+## What you tested and the exact results
+
+### 1. Repo scan
+
+Command from brief:
+
+```bash
+rg -n 'href="/|src="/|start_url|canonical|og:url|og:image|manifest|sitemap' index.html public src .github
+```
+
+Result:
+
+```text
+index.html:19:    <link rel="canonical" href="https://suryadharmaa.github.io/fincli-web/" />
+index.html:21:    <link rel="manifest" href="%BASE_URL%site.webmanifest" />
+index.html:30:    <meta property="og:url" content="https://suryadharmaa.github.io/fincli-web/" />
+index.html:31:    <meta property="og:image" content="https://suryadharmaa.github.io/fincli-web/og-fincli.svg" />
+index.html:32:    <meta property="og:image:width" content="1200" />
+index.html:33:    <meta property="og:image:height" content="630" />
+index.html:34:    <meta property="og:image:alt" content="FinCLI Roman-Spartan financial command center" />
+src\data.ts:322:  { command: '/plugin validate', category: 'Plugin system', description: 'Validate plugin manifests and code' },
+src\components\Operations.tsx:164:  { icon: PlugZap, title: 'Plugin system', value: 'Sandboxed', text: 'Validated manifests, lifecycle hooks, and a bounded public API.' },
+public\sitemap.xml:2:<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+public\site.webmanifest:5:  "start_url": "/fincli-web/",
+public\robots.txt:4:Sitemap: https://suryadharmaa.github.io/fincli-web/sitemap.xml
+```
+
+Assessment:
+
+- The `src` matches are false positives caused by the search term `manifest`, not broken URLs.
+- No unexpected `href="/..."` or `src="/..."` Pages-breaking references were found.
+- The only intentional root-relative source reference is the Vite development entry script in `index.html`, which is expected.
+
+### 2. Production build
+
+Attempted exact brief command:
+
+```bash
+npm run build
+```
+
+PowerShell result:
+
+```text
+npm : File C:\Program Files\nodejs\npm.ps1 cannot be loaded because running scripts is disabled on this system.
+```
+
+Equivalent successful command used to run the same npm script:
+
+```bash
+npm.cmd run build
+```
+
+Result:
+
+```text
+> fincli-web@1.9.0 build
+> tsc -b && vite build
+
+vite v8.1.4 building client environment for production...
+transforming... ✓ 1786 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                                   3.21 kB │ gzip:  1.11 kB
+dist/assets/manrope-vietnamese-wght-normal-usUDDRr7.woff2         8.52 kB
+dist/assets/manrope-greek-wght-normal-DL7QRZyv.woff2              9.44 kB
+dist/assets/manrope-cyrillic-wght-normal-Dvxsihut.woff2          14.50 kB
+dist/assets/manrope-latin-ext-wght-normal-Ch3YOpNY.woff2         15.12 kB
+dist/assets/cormorant-garamond-latin-600-normal-Co1r35X9.woff2   23.39 kB
+dist/assets/manrope-latin-wght-normal-DHIcAJRg.woff2             24.83 kB
+dist/assets/cormorant-garamond-latin-600-normal-2CBVLo0M.woff    31.30 kB
+dist/assets/index-CPDda4Ke.css                                   81.38 kB │ gzip: 18.25 kB
+dist/assets/index-DQmpZeFW.js                                   275.31 kB │ gzip: 83.89 kB
+
+✓ built in 1.21s
+```
+
+Assessment:
+
+- Build passed with exit code `0`.
+- `dist/` was generated with bundled JS/CSS/assets as expected.
+
+### 3. Local preview
+
+Equivalent command used to run the brief preview script, for the same PowerShell reason:
+
+```bash
+npm.cmd run preview -- --host 127.0.0.1 --port 4173
+```
+
+Result:
+
+```text
+> fincli-web@1.9.0 preview
+> vite preview --host 127.0.0.1 --port 4173
+
+➜  Local:   http://127.0.0.1:4173/fincli-web/
+```
+
+HTTP verification against preview:
+
+- `GET http://127.0.0.1:4173/fincli-web/`
+  - Returned built HTML with:
+    - `href="/fincli-web/favicon.svg"`
+    - `href="/fincli-web/site.webmanifest"`
+    - `src="/fincli-web/assets/index-DQmpZeFW.js"`
+    - `href="/fincli-web/assets/index-CPDda4Ke.css"`
+- `GET http://127.0.0.1:4173/fincli-web/assets/index-DQmpZeFW.js`
+  - Status `200`
+- `GET http://127.0.0.1:4173/fincli-web/assets/index-CPDda4Ke.css`
+  - Status `200`
+- `GET http://127.0.0.1:4173/fincli-web/favicon.svg`
+  - Status `200`
+- `GET http://127.0.0.1:4173/fincli-web/og-fincli.svg`
+  - Status `200`
+- `GET http://127.0.0.1:4173/fincli-web/site.webmanifest`
+  - Parsed JSON included `"start_url": "/fincli-web/"`
+- `GET http://127.0.0.1:4173/fincli-web/robots.txt`
+  - Returned `Sitemap: https://suryadharmaa.github.io/fincli-web/sitemap.xml`
+- `GET http://127.0.0.1:4173/fincli-web/sitemap.xml`
+  - Returned `<loc>https://suryadharmaa.github.io/fincli-web/</loc>`
+
+Anchor/demo section verification:
+
+- Source anchor links remain hash-only section links such as `#install`, `#commands`, `#features`, `#local-web`, `#research`, `#trading`, `#providers`, and `#roadmap`.
+- Matching section IDs exist in `src`, so the in-page navigation remains subpath-safe and does not depend on domain-root routes.
+
+### 4. Browser interaction
+
+Browser automation against the local preview used the installed Chrome executable at `C:\Program Files\Google\Chrome\Application\chrome.exe` and confirmed the page loads and anchors behave inside a real browser session.
+
+Observed browser results:
+
+- Title: `FinCLI v1.9.0 — Terminal-Native Financial Workstation`
+- Nav hash targets visible in the live page: `#features`, `#local-web`, `#commands`, `#research`, `#trading`, `#security`, `#install`
+- Initial state: `location.hash === ""` and `scrollY === 0`
+- After clicking `a[href="#commands"]`:
+  - `location.hash === "#commands"`
+  - `scrollY > 0`
+  - The `#commands` section exists and is reachable in-browser
+- After clicking `a[href="#local-web"]`:
+  - `location.hash === "#local-web"`
+  - `scrollY > 0`
+  - The `#local-web` section exists and is reachable in-browser
+
+Assessment:
+
+- The preview served correctly under `/fincli-web/`.
+- Built asset URLs were rewritten with the correct `/fincli-web/` prefix.
+- Static metadata files and social image references resolve under the Pages subpath.
+- The anchor navigation and section jumps were exercised in a real browser session, not just inferred from markup.
+- No Pages-only mismatch was found.
+
+## What, if anything, you changed
+
+- No application source or deployment wiring changes were needed.
+- The only file added was this audit report: `.superpowers/sdd/task-1-report.md`.
+
+## Any concerns
+
+- `npm run build` could not be invoked literally in this PowerShell session because local execution policy blocks `npm.ps1`. Running `npm.cmd` executed the same npm scripts successfully and did not indicate a project issue.
+- Browser verification used installed Chrome through automation rather than a separate in-app browser backend, which was enough to validate subpath navigation behavior for this audit.
+
+## Explicit conclusion
+
+No code changes were needed. The current Pages-sensitive paths and deployment wiring are consistent with publishing at `https://suryadharmaa.github.io/fincli-web/`, and the built site resolves correctly under the `/fincli-web/` base path.
