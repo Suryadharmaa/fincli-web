@@ -1,4 +1,5 @@
 import { ArrowDown, ArrowRight, GitFork, ShieldCheck, Sparkles } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { LaurelSeal } from './Brand'
 import { CommandConsole } from './CommandConsole'
 
@@ -10,6 +11,35 @@ const heroStats = [
   ['Alpaca + Binance', 'Paper · testnet · live'],
   ['Python 3.11+ / Node 18+', 'Cross-platform'],
 ] as const
+
+const heroCommands = ['/research AAPL --deep', '/portfolio risk', '/provider status', '/backtest AAPL sma_cross 1y']
+
+function HeroCommandLauncher() {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [typed, setTyped] = useState('')
+  const [focused, setFocused] = useState(false)
+  const activeCommand = heroCommands[activeIndex]
+
+  useEffect(() => {
+    setTyped('')
+    let cursor = 0
+    const timer = window.setInterval(() => {
+      cursor += 1
+      setTyped(activeCommand.slice(0, cursor))
+      if (cursor >= activeCommand.length) window.clearInterval(timer)
+    }, 42)
+    return () => window.clearInterval(timer)
+  }, [activeCommand])
+
+  return (
+    <div className="hero-launcher" onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}>
+      <div className="hero-launcher-topline"><span><i aria-hidden="true" /> COMMAND LAUNCHER</span><small><span className="hero-launcher-key">⌘</span> LOCAL ROUTER</small></div>
+      <div className={`hero-launcher-input ${focused ? 'is-focused' : ''}`}><span className="hero-prompt">fincli@local:~$</span><input aria-label="Try a FinCLI command" value={typed} onChange={(event) => setTyped(event.target.value)} placeholder="Try a command…" spellCheck={false} /><span className="hero-cursor" aria-hidden="true" /></div>
+      <div className="hero-command-chips" aria-label="Quick command examples">{heroCommands.map((command, index) => <button key={command} type="button" className={index === activeIndex ? 'is-active' : ''} onClick={() => setActiveIndex(index)}>{command}</button>)}</div>
+      <div className="hero-launcher-status"><span><i className="status-dot" aria-hidden="true" /> Ready for local simulation</span><span>Press a preset to preview</span></div>
+    </div>
+  )
+}
 
 export function Hero() {
   return (
@@ -37,6 +67,7 @@ export function Hero() {
         <p className="hero-support">
           Provider-aware intelligence, portfolio risk, backtesting, authenticated Local Web Access, and a bundled `fincli.exe` path—grounded in the data available to you.
         </p>
+        <HeroCommandLauncher />
         <div className="hero-actions">
           <a className="button button--primary" href="#install">Get Started <ArrowRight size={17} aria-hidden="true" /></a>
           <a className="button button--secondary" href="#commands">Explore Commands</a>
