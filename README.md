@@ -1,4 +1,4 @@
-# FinCLI v1.9.0
+# FinCLI v2.0.0
 
 [![npm version](https://img.shields.io/npm/v/@drico2008/fincli)](https://www.npmjs.com/package/@drico2008/fincli)
 [![npm downloads](https://img.shields.io/npm/dm/@drico2008/fincli?label=downloads%2Fmonth)](https://www.npmjs.com/package/@drico2008/fincli)
@@ -7,9 +7,9 @@
 ![Node](https://img.shields.io/badge/Node.js-18+-green)
 [![Socket Badge](https://badge.socket.dev/npm/package/@drico2008/fincli)](https://badge.socket.dev/npm/package/@drico2008/fincli)
 
-**A terminal-native financial workstation. Research, trade, and analyze markets without leaving your shell.**
+**A local-first financial workspace for terminal and Windows desktop. Research, trade, and analyze markets from `fincli.exe` or your shell.**
 
-![FinCLI v1.9.0 command center](public/og-fincli.svg)
+![FinCLI startup dashboard](img/og-fincli.svg)
 
 ---
 
@@ -24,7 +24,21 @@
 
 ---
 
-## Install
+## Windows Desktop
+
+For most Windows users, the recommended entrypoint is the portable desktop app: `fincli.exe`.
+
+### Portable app for end users
+
+1. Download `fincli.exe` or the optional Windows installer from the project release artifacts.
+2. Open `fincli.exe`.
+3. Complete setup inside the app.
+
+`fincli.exe` already bundles the FinCLI backend. End users do not need to install Python, Node.js, npm, or a separate backend service.
+
+The only Windows runtime dependency is WebView2. Many systems already include it. If the app does not open on a clean machine, install WebView2 once and launch `fincli.exe` again.
+
+### CLI install
 
 ```bash
 npm install -g @drico2008/fincli
@@ -34,7 +48,23 @@ fincli
 
 The npm package includes Local Web Access dependencies. Python source users can install them with `pip install -e ".[web]"`.
 
-Requires Python 3.11+ and Node.js 18+. See [Prerequisites](#prerequisites) if you need to install them.
+CLI usage requires Python 3.11+ and Node.js 18+. See [Prerequisites](#prerequisites) if you need to install them.
+
+### Build desktop from source
+
+```powershell
+python -m pip install -e ".[web]"
+./scripts/build_desktop_backend.ps1
+cd desktop
+npm install
+npm run tauri:icons
+npm run tauri:build
+```
+
+Build output:
+
+- Portable app: `desktop/src-tauri/target/release/fincli.exe`
+- Installer: `desktop/src-tauri/target/release/bundle/nsis/FinCLI_2.0.0_x64-setup.exe`
 
 ---
 
@@ -50,7 +80,7 @@ Requires Python 3.11+ and Node.js 18+. See [Prerequisites](#prerequisites) if yo
 
 ## Local Web Access
 
-FinCLI v1.9.0 adds an optional, authenticated browser workspace at `http://localhost:19850`. The terminal remains the primary interface and all existing commands continue to work.
+FinCLI v2.0.0 adds a Windows-first desktop workspace powered by Tauri and the existing authenticated FastAPI bridge. The terminal remains supported and all existing commands continue to work.
 
 ```bash
 pip install -e ".[web]"
@@ -66,7 +96,7 @@ Type `/` in the web composer to browse and search the complete FinCLI command re
 
 > The local web UI is intended for local use. Do not expose it publicly unless you understand the security risks. Authentication is enabled and the server binds to `127.0.0.1` by default. Browser responses never include stored API keys or broker secrets, and sensitive commands require explicit confirmation.
 
-Interactive Local Web product simulation: [open the command chamber](https://suryadharmaa.github.io/fincli-web/#local-web).
+Screenshot placeholder: `docs/images/web-chat-v2.0.0.png`
 
 Troubleshooting: if web dependencies are missing, run `pip install -e ".[web]"`. Use `/web logs` for startup errors and `/web config set port <port>` if port `19850` is occupied.
 
@@ -286,6 +316,8 @@ Blocked by default: `os`, `sys`, `subprocess`, `socket`, `exec()`, `eval()`, `op
 
 ## Prerequisites
 
+Desktop end users can skip this section unless they are building from source or using the CLI/npm version.
+
 <details>
 <summary>Install Python 3.11+</summary>
 
@@ -318,7 +350,7 @@ sudo apt install nodejs -y
 <summary>Install from source (developers)</summary>
 
 ```bash
-git clone https://github.com/Suryadharmaa/FinCLI-Renewed.git fincli
+git clone https://github.com/Suryadharmaa/FinCLI-Renewed.git
 cd fincli
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
@@ -332,11 +364,24 @@ fincli
 
 ## Changelog
 
+### v2.0.0
+- Add Windows-first `fincli.exe` desktop workspace with Tauri and the existing FastAPI/CommandRouter backend
+- Start and stop a loopback-only Python sidecar automatically, with readiness retry and single-instance behavior
+- Add internal desktop session bootstrap, structured desktop API metadata, and explicit confirmation for kill-switch actions
+- Add PyInstaller sidecar packaging, NSIS installer configuration, app icon generation, and Windows CI artifact publishing
+
 ### Next Major (validated, unreleased)
 - **Provider System v3**: first-class Polygon.io and IEX Cloud market providers across manager, config, TUI selector, key status, entitlements, and symbol intelligence
 - **Research Engine v4**: `/research --report` now includes verified facts, inferences, missing-data severity, bull/base/bear scenario matrix, citation IDs, and source scoring
 - Preserves deterministic snapshot mode and existing v1.8.5 TUI cockpit behavior
-- Validation passed: Ruff, compileall, 792-test pytest suite, npm wrapper check, prepublish safety check, and npm pack dry-run
+- Validation passed: Ruff, compileall, 828-test pytest suite, npm wrapper check, prepublish safety check, and npm pack dry-run
+
+### v1.9.1
+- Fix `RuntimeError: Event loop is closed` when running commands from Local Web Access — stale `httpx.AsyncClient` across event loops is now detected and replaced automatically
+- Add `/api/secrets` endpoint to view and set API keys from the web UI — keys are stored in the OS credential store and loaded immediately
+- Add Settings panel in the web UI with per-provider key status, input fields, and save buttons
+- Reduce AI analysis prompt token usage by ~60% without losing data fidelity — compact OHLCV table, single-line indicators, compressed structure format
+- Fix ruff lint issues: unused imports, `raise ... from exc`, constant naming
 
 ### v1.9.0
 - Add Local Web Access with a browser-based FinCLI dashboard
@@ -488,25 +533,3 @@ fincli
 ## License
 
 MIT
-
----
-
-## Landing Page Development & Deployment
-
-This repository contains the static FinCLI landing page built with React, TypeScript, and Vite. The production site is published at <https://suryadharmaa.github.io/fincli-web/>.
-
-The landing-page toolchain requires Node.js 20.19+ or 22.12+; Node.js 22 is recommended and used in CI. This is separate from the FinCLI product runtime, which supports Node.js 18+.
-
-```bash
-npm install
-npm run dev
-```
-
-Create and preview a production build:
-
-```bash
-npm run build
-npm run preview
-```
-
-Vite uses the GitHub Pages project base path `/fincli-web/`. Pushing to `main` runs `.github/workflows/deploy-pages.yml`, builds the static assets, and deploys `dist` through GitHub Pages. In repository settings, set **Pages → Source** to **GitHub Actions**. The landing page contains static product simulations only; never add API keys, broker credentials, or secrets to frontend environment variables.
