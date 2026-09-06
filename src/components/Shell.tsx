@@ -85,6 +85,7 @@ export function Navbar({ theme, onThemeToggle }: { theme: 'dark' | 'light'; onTh
 export function AmbientBackdrop() {
   return (
     <div className="ambient-backdrop" aria-hidden="true">
+      <img className="roman-column-asset" src={`${import.meta.env.BASE_URL}assets/roman-marble-column.jpg`} alt="" />
       <div className="ambient-grid" />
       <div className="ambient-orbit ambient-orbit--one" />
       <div className="ambient-orbit ambient-orbit--two" />

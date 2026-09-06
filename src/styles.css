@@ -2408,3 +2408,39 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .feature-card:hover, .workflow-step:hover, .release-entry:hover, .pulse-symbols button:hover { transform: none; }
 }
+
+
+/* Roman marble column image: The Metropolitan Museum of Art Open Access, public domain. */
+.roman-column-asset {
+  position: absolute;
+  top: 2vh;
+  right: clamp(-130px, 4vw, 56px);
+  z-index: -1;
+  width: clamp(180px, 18vw, 300px);
+  height: 94vh;
+  object-fit: cover;
+  object-position: 50% 12%;
+  opacity: .17;
+  filter: sepia(.3) saturate(.7) hue-rotate(165deg) contrast(1.05);
+  mix-blend-mode: screen;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 82%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 82%, transparent 100%);
+  transform: perspective(900px) rotateY(-11deg);
+  transform-origin: center right;
+}
+
+:root[data-theme='light'] .roman-column-asset {
+  opacity: .2;
+  filter: sepia(.28) saturate(.58) hue-rotate(150deg) contrast(.94);
+  mix-blend-mode: multiply;
+}
+
+@media (max-width: 760px) {
+  .roman-column-asset {
+    top: 88px;
+    right: -92px;
+    width: 170px;
+    height: 760px;
+    opacity: .12;
+  }
+}
