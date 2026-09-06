@@ -4,6 +4,7 @@ import { Capabilities } from './components/Capabilities'
 import { Hero } from './components/Hero'
 import { ProviderSystem, ResearchEngine } from './components/Intelligence'
 import { LocalWeb } from './components/LocalWeb'
+import { ImperialCalculators } from './components/ImperialCalculators'
 import { MarketPulse } from './components/MarketPulse'
 import { Commands, FinalCta, Footer, Install, Roadmap } from './components/Operations'
 import { AmbientBackdrop, Navbar } from './components/Shell'
@@ -45,6 +46,7 @@ function App() {
       <main id="main-content">
         <Hero />
         <MarketPulse />
+        <ImperialCalculators />
         <Capabilities />
         <LocalWeb />
         <ResearchEngine />

@@ -5,6 +5,7 @@ import { Brand } from './Brand'
 const navItems = [
   ['Features', '#features'],
   ['Local Web', '#local-web'],
+  ['Calculators', '#calculators'],
   ['Commands', '#commands'],
   ['Research', '#research'],
   ['Trading', '#trading'],

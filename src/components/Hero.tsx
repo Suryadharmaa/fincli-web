@@ -25,6 +25,7 @@ export function Hero() {
           <span><i aria-hidden="true" /> FinCLI v2.0.0</span>
           <span>Windows desktop + local web</span>
         </div>
+        <p className="hero-motto">Per scientiam ad imperium <span>·</span> Through knowledge, command</p>
         <p className="hero-overline"><Sparkles size={14} aria-hidden="true" /> The financial command line, re-forged</p>
         <h1 id="hero-title">
           Command markets with
