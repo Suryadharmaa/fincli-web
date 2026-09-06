@@ -45,7 +45,7 @@ export function Navbar({ theme, onThemeToggle }: { theme: 'dark' | 'light'; onTh
           ))}
           <a
             className="nav-github"
-            href="https://github.com/Suryadharmaa/FinCLI-Renewed"
+            href="https://github.com/Suryadharmaa/fincli-web"
             target="_blank"
             rel="noreferrer"
             onClick={() => setOpen(false)}

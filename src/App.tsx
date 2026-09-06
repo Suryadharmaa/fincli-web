@@ -4,6 +4,7 @@ import { Capabilities } from './components/Capabilities'
 import { Hero } from './components/Hero'
 import { ProviderSystem, ResearchEngine } from './components/Intelligence'
 import { LocalWeb } from './components/LocalWeb'
+import { MarketPulse } from './components/MarketPulse'
 import { Commands, FinalCta, Footer, Install, Roadmap } from './components/Operations'
 import { AmbientBackdrop, Navbar } from './components/Shell'
 import { TradingSafety } from './components/Trading'
@@ -43,6 +44,7 @@ function App() {
 
       <main id="main-content">
         <Hero />
+        <MarketPulse />
         <Capabilities />
         <LocalWeb />
         <ResearchEngine />

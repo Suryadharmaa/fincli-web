@@ -65,9 +65,9 @@ export function LocalWeb() {
     <section className="section section-shell local-web-section" id="local-web" aria-labelledby="local-web-heading">
       <div className="local-web-intro">
         <SectionHeading
-          eyebrow="Local Web Access · v1.9.0"
+          eyebrow="Local Web Access · v2.0.0"
           title="The terminal now has a command chamber."
-          description="An authenticated browser workspace at http://localhost:19850 for local conversations, research shortcuts, provider visibility, and safe access to the same command router."
+          description="An authenticated browser workspace at http://localhost:19850 for local conversations, research shortcuts, provider visibility, and safe access to the same command router. The Windows desktop app bundles this bridge for end users."
         />
         <span id="local-web-heading" className="sr-only">FinCLI Local Web Access</span>
         <Reveal className="local-web-facts">

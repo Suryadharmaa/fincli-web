@@ -4,7 +4,7 @@ type BrandProps = {
 
 export function Brand({ compact = false }: BrandProps) {
   return (
-    <span className="brand-lockup" aria-label="FinCLI v1.9.0">
+    <span className="brand-lockup" aria-label="FinCLI v2.0.0">
       <svg className="brand-mark" viewBox="0 0 44 48" aria-hidden="true">
         <path className="brand-shield" d="M22 2.5 39 8v12.7c0 11.7-6.6 20.3-17 24.8C11.6 41 5 32.4 5 20.7V8l17-5.5Z" />
         <path className="brand-ridge" d="M11.5 13.5h21M22 7v33" />
@@ -13,7 +13,7 @@ export function Brand({ compact = false }: BrandProps) {
       {!compact && (
         <span className="brand-copy">
           <span className="brand-name">FinCLI</span>
-          <span className="brand-version">v1.9.0</span>
+          <span className="brand-version">v2.0.0</span>
         </span>
       )}
     </span>

@@ -2099,3 +2099,111 @@ svg {
   .floating-market-card { animation: none; }
   .reveal { opacity: 1; transform: none; }
 }
+
+
+/* Interactive market pulse */
+.market-pulse {
+  position: relative;
+  padding-bottom: 30px;
+}
+
+.pulse-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+.section-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  color: var(--accent-gold-bright);
+  font-family: var(--mono);
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.pulse-header h2 {
+  max-width: 660px;
+  margin: 0;
+  color: var(--text-strong);
+  font-family: var(--display);
+  font-size: clamp(2rem, 4vw, 3.45rem);
+  font-weight: 600;
+  letter-spacing: -.04em;
+  line-height: .98;
+}
+
+.pulse-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: .62rem;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+.pulse-status i,
+.pulse-detail-heading .is-positive::before { content: ''; }
+.pulse-status i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-green) 13%, transparent); }
+
+.pulse-ticker {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  overflow: hidden;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--surface-solid) 94%, var(--accent-gold)), var(--surface-inset));
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+
+.pulse-symbols { display: grid; align-content: start; padding: 10px; border-right: 1px solid var(--line); background: color-mix(in srgb, var(--surface-inset) 80%, transparent); }
+.pulse-symbols button { display: grid; grid-template-columns: 1fr auto; gap: 3px 8px; padding: 14px 13px; color: var(--muted); text-align: left; background: transparent; border: 1px solid transparent; border-radius: 10px; cursor: pointer; transition: background 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms ease; }
+.pulse-symbols button:hover { color: var(--text-strong); transform: translateX(2px); }
+.pulse-symbols button.is-active { color: var(--text-strong); background: color-mix(in srgb, var(--accent-gold) 12%, transparent); border-color: var(--line-strong); }
+.pulse-symbols button span { font-family: var(--mono); font-size: .75rem; font-weight: 800; letter-spacing: .04em; }
+.pulse-symbols button strong { font-family: var(--mono); font-size: .74rem; font-weight: 600; }
+.pulse-symbols button small { grid-column: 1 / -1; color: var(--subtle); font-size: .7rem; }
+.is-positive { color: var(--accent-green) !important; }
+.is-negative { color: var(--accent-red) !important; }
+
+.pulse-detail { min-width: 0; padding: clamp(24px, 4vw, 40px); }
+.pulse-detail-heading { display: flex; align-items: start; justify-content: space-between; gap: 20px; }
+.pulse-detail-heading > div { display: grid; gap: 8px; }
+.pulse-detail-heading span:first-child { color: var(--muted); font-family: var(--mono); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
+.pulse-detail-heading strong { color: var(--text-strong); font-family: var(--mono); font-size: clamp(1.65rem, 3vw, 2.6rem); letter-spacing: -.06em; }
+.pulse-change { display: inline-flex; align-items: center; gap: 4px; padding-top: 8px; font-family: var(--mono); font-size: .78rem; }
+.pulse-visual { margin: 24px 0 18px; }
+.pulse-chart { width: 100%; height: 130px; overflow: visible; background: repeating-linear-gradient(to bottom, transparent 0 31px, var(--line-soft) 31px 32px); }
+.pulse-line { stroke-width: 2.2; filter: drop-shadow(0 0 4px color-mix(in srgb, var(--accent-gold) 45%, transparent)); }
+.pulse-line--up { stroke: var(--accent-green); }
+.pulse-line--down { stroke: var(--accent-red); }
+.pulse-visual-labels { display: flex; justify-content: space-between; color: var(--faint); font-family: var(--mono); font-size: .6rem; }
+.pulse-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding-top: 18px; border-top: 1px solid var(--line); }
+.pulse-stats span { display: grid; grid-template-columns: auto 1fr; gap: 2px 7px; align-items: center; color: var(--accent-gold); }
+.pulse-stats small { color: var(--subtle); font-size: .64rem; }
+.pulse-stats strong { grid-column: 2; color: var(--text); font-family: var(--mono); font-size: .71rem; font-weight: 600; }
+
+@media (max-width: 760px) {
+  .pulse-header { display: grid; align-items: start; }
+  .pulse-status { justify-self: start; }
+  .pulse-ticker { grid-template-columns: 1fr; }
+  .pulse-symbols { grid-template-columns: repeat(4, 1fr); border-right: 0; border-bottom: 1px solid var(--line); }
+  .pulse-symbols button { padding: 10px 8px; }
+  .pulse-symbols button strong { font-size: .63rem; }
+  .pulse-symbols button small { font-size: .6rem; }
+  .pulse-detail { padding: 22px 18px; }
+  .pulse-stats { grid-template-columns: 1fr; }
+  .pulse-stats span { grid-template-columns: auto 80px 1fr; }
+  .pulse-stats strong { grid-column: 3; }
+}

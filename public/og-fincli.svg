@@ -26,10 +26,10 @@
     <ellipse cx="817" cy="403" rx="9" ry="25" transform="rotate(-42 817 403)"/><ellipse cx="791" cy="362" rx="9" ry="25" transform="rotate(-58 791 362)"/><ellipse cx="782" cy="313" rx="9" ry="25" transform="rotate(-76 782 313)"/><ellipse cx="793" cy="263" rx="9" ry="25" transform="rotate(-101 793 263)"/><ellipse cx="817" cy="220" rx="9" ry="25" transform="rotate(-125 817 220)"/>
     <ellipse cx="1123" cy="403" rx="9" ry="25" transform="rotate(42 1123 403)"/><ellipse cx="1149" cy="362" rx="9" ry="25" transform="rotate(58 1149 362)"/><ellipse cx="1158" cy="313" rx="9" ry="25" transform="rotate(76 1158 313)"/><ellipse cx="1147" cy="263" rx="9" ry="25" transform="rotate(101 1147 263)"/><ellipse cx="1123" cy="220" rx="9" ry="25" transform="rotate(125 1123 220)"/>
   </g>
-  <text x="72" y="102" fill="#d9b467" font-family="monospace" font-size="18" letter-spacing="5">FINCLI IMPERIUM · v1.9.0</text>
+  <text x="72" y="102" fill="#d9b467" font-family="monospace" font-size="18" letter-spacing="5">FINCLI IMPERIUM · v2.0.0</text>
   <text x="72" y="220" fill="#fff8ea" font-family="Georgia,serif" font-size="82" font-weight="700">Command markets</text>
   <text x="72" y="300" fill="#d9b467" font-family="Georgia,serif" font-size="82" font-style="italic">with clarity.</text>
-  <text x="76" y="366" fill="#aaa59c" font-family="Arial,sans-serif" font-size="24">A terminal-native financial workstation.</text>
+  <text x="76" y="366" fill="#aaa59c" font-family="Arial,sans-serif" font-size="24">A local-first financial workstation.</text>
   <rect x="72" y="424" width="580" height="86" rx="10" fill="#090b0f" stroke="#d9b467" stroke-opacity=".4"/>
   <text x="96" y="458" fill="#77c79b" font-family="monospace" font-size="16">fincli@local:~$</text>
   <text x="96" y="490" fill="#f0cd82" font-family="monospace" font-size="19">/research AAPL --deep</text>

@@ -5,7 +5,7 @@ import { CommandConsole } from './CommandConsole'
 const heroStats = [
   ['Research Engine v4', 'Validated preview'],
   ['Provider System v3', 'Validated preview'],
-  ['Local Web Access', 'v1.9.0'],
+  ['Windows desktop', 'v2.0.0'],
   ['100+ Commands', 'Slash registry'],
   ['Alpaca + Binance', 'Paper · testnet · live'],
   ['Python 3.11+ / Node 18+', 'Cross-platform'],
@@ -22,8 +22,8 @@ export function Hero() {
 
       <div className="hero-copy">
         <div className="release-pill">
-          <span><i aria-hidden="true" /> FinCLI v1.9.0</span>
-          <span>Local command sovereignty</span>
+          <span><i aria-hidden="true" /> FinCLI v2.0.0</span>
+          <span>Windows desktop + local web</span>
         </div>
         <p className="hero-overline"><Sparkles size={14} aria-hidden="true" /> The financial command line, re-forged</p>
         <h1 id="hero-title">
@@ -31,15 +31,15 @@ export function Hero() {
           <span>clarity, not noise.</span>
         </h1>
         <p className="hero-lead">
-          A terminal-native financial workstation. Research, trade, and analyze markets without leaving your shell.
+          A local-first financial workstation. Research, trade, and analyze markets from your shell or a Windows desktop app.
         </p>
         <p className="hero-support">
-          Provider-aware intelligence, portfolio risk, backtesting, and authenticated Local Web Access—grounded in the data available to you.
+          Provider-aware intelligence, portfolio risk, backtesting, authenticated Local Web Access, and a bundled `fincli.exe` path—grounded in the data available to you.
         </p>
         <div className="hero-actions">
           <a className="button button--primary" href="#install">Get Started <ArrowRight size={17} aria-hidden="true" /></a>
           <a className="button button--secondary" href="#commands">Explore Commands</a>
-          <a className="button button--text" href="https://github.com/Suryadharmaa/FinCLI-Renewed" target="_blank" rel="noreferrer">
+          <a className="button button--text" href="https://github.com/Suryadharmaa/fincli-web" target="_blank" rel="noreferrer">
             <GitFork size={17} aria-hidden="true" /> View GitHub
           </a>
         </div>

@@ -329,9 +329,9 @@ export const changelog = [
     text: 'Research Engine v4 and Provider System v3 add structured evidence, source scoring, first-class Polygon/IEX wiring, and provider capability envelopes.',
   },
   {
-    version: 'v1.9.0',
+    version: 'v2.0.0',
     state: 'Current',
-    text: 'Authenticated Local Web Access, browser chat, local history, provider/model status, safe command routing, and local-only defaults.',
+    text: 'Windows-first Tauri desktop workspace, bundled fincli.exe path, authenticated Local Web Access, provider-aware research, and explicit safety gates.',
   },
   {
     version: 'v1.8.5',

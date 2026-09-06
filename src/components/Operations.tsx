@@ -37,7 +37,7 @@ const installTabs = [
     icon: Code2,
     title: 'Editable source install',
     description: 'Clone the core FinCLI repository into a predictable local folder for development.',
-    code: 'git clone https://github.com/Suryadharmaa/FinCLI-Renewed.git fincli\ncd fincli\npython -m venv .venv\n# activate .venv for your OS\npip install -e ".[dev]"\nfincli',
+    code: 'git clone https://github.com/Suryadharmaa/fincli-web.git\ncd fincli-web\npython -m venv .venv\n# activate .venv for your OS\npip install -e ".[dev]"\nfincli',
     note: 'Use .venv\\Scripts\\activate on Windows or source .venv/bin/activate on macOS/Linux.',
   },
   {
@@ -266,7 +266,7 @@ export function Roadmap() {
           description="A concise record of the systems that shaped the current command center—and the validated capabilities being prepared next."
         />
         <span id="roadmap-heading" className="sr-only">FinCLI roadmap and changelog</span>
-        <a href="https://github.com/Suryadharmaa/FinCLI-Renewed" target="_blank" rel="noreferrer">Full changelog <ChevronRight size={15} aria-hidden="true" /></a>
+        <a href="https://github.com/Suryadharmaa/fincli-web" target="_blank" rel="noreferrer">Full changelog <ChevronRight size={15} aria-hidden="true" /></a>
       </div>
       <div className="release-ledger">
         {changelog.map((release, index) => (
@@ -292,7 +292,7 @@ export function FinalCta() {
         <p>Install FinCLI, configure the providers you trust, and bring research, risk, trading, and testing into one terminal-native workflow.</p>
         <div>
           <a className="button button--primary" href="#install">Install FinCLI <ChevronRight size={17} aria-hidden="true" /></a>
-          <a className="button button--secondary" href="https://github.com/Suryadharmaa/FinCLI-Renewed" target="_blank" rel="noreferrer"><GitFork size={17} aria-hidden="true" /> Read the docs</a>
+          <a className="button button--secondary" href="https://github.com/Suryadharmaa/fincli-web" target="_blank" rel="noreferrer"><GitFork size={17} aria-hidden="true" /> Read the docs</a>
         </div>
       </Reveal>
       <div className="final-cta-command"><span>One command away</span><code>npm install -g @drico2008/fincli</code><CopyButton value="npm install -g @drico2008/fincli" label="Copy npm install command" /></div>
@@ -312,12 +312,12 @@ export function Footer() {
         <div className="footer-links">
           <div><strong>Product</strong><a href="#features">Features</a><a href="#local-web">Local Web</a><a href="#research">Research</a><a href="#trading">Trading</a></div>
           <div><strong>Explore</strong><a href="#commands">Commands</a><a href="#providers">Providers</a><a href="#install">Install</a><a href="#roadmap">Changelog</a></div>
-          <div><strong>Project</strong><a href="https://github.com/Suryadharmaa/FinCLI-Renewed" target="_blank" rel="noreferrer">GitHub</a><a href="https://www.npmjs.com/package/@drico2008/fincli" target="_blank" rel="noreferrer">npm</a><a href="https://opensource.org/license/mit" target="_blank" rel="noreferrer">MIT License</a></div>
+          <div><strong>Project</strong><a href="https://github.com/Suryadharmaa/fincli-web" target="_blank" rel="noreferrer">GitHub</a><a href="https://www.npmjs.com/package/@drico2008/fincli" target="_blank" rel="noreferrer">npm</a><a href="https://opensource.org/license/mit" target="_blank" rel="noreferrer">MIT License</a></div>
         </div>
       </div>
       <div className="section-shell footer-bottom">
         <p><strong>Important:</strong> AI output is informational only, not financial advice. Live trading involves risk. Data quality depends on your provider and API plan.</p>
-        <span>FinCLI v1.9.0 <i /> Built for the local command line</span>
+        <span>FinCLI v2.0.0 <i /> Built for the local command line</span>
       </div>
     </footer>
   )
