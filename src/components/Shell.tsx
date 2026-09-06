@@ -1,5 +1,5 @@
 import { GitFork, Menu, Moon, Sun, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { Brand } from './Brand'
 
 const navItems = [
@@ -87,6 +87,8 @@ export function AmbientBackdrop() {
   return (
     <div className="ambient-backdrop" aria-hidden="true">
       <img className="roman-column-asset" src={`${import.meta.env.BASE_URL}assets/roman-marble-column.jpg`} alt="" />
+      <img className="roman-bust-asset" src={`${import.meta.env.BASE_URL}assets/roman-laurel-bust.jpg`} alt="" />
+      <div className="ambient-particles">{Array.from({ length: 12 }, (_, index) => <i key={index} style={{ '--particle-index': index } as CSSProperties} />)}</div>
       <div className="ambient-grid" />
       <div className="ambient-orbit ambient-orbit--one" />
       <div className="ambient-orbit ambient-orbit--two" />
